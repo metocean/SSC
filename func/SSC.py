@@ -122,6 +122,9 @@ args = parser.parse_args()
 with open(args.yaml ,'r') as f:
 	run_parameters = yaml.load(f)
 
+
+sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
+pw=power(sc) # this wil get the power after 1 tidal cycle
 pw.export_nc(n-1,run_parameters['saving directory'])
 sys.exit(-1)
 ## check path and create it
