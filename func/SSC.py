@@ -13,6 +13,7 @@ from power import power
 import numpy as np
 from export_nc import export_nc
 from polygons import *
+import timeit
 
 MAXRUN=10
 NPROC=3
@@ -75,13 +76,20 @@ def search_steady_state(dirout,pw,sc,X):
 	n=12
 	## first filename
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
+	
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X:
-		print 'wait for %s to be created' % tidal_cycle
+		print 'waiting for %s to be created' % tidal_cycle
 		# wait that the next files get created
+		start = timeit.default_timer()
 		while not os.path.exists(tidal_cycle): 
 			time.sleep(1)
+		stop = timeit.default_timer()
+		sec=stop-start
+		m, s = divmod(sec, 60)
+		h, m = divmod(m, 60)
 
+		print 'one tidal cycle finished in %dhrs %02dmin %02dsec' % (h,m,s)
 		# compile it
 		sc.create_nectdf_file(n)
 		# get the power for all the farms in the file
@@ -94,6 +102,9 @@ def search_steady_state(dirout,pw,sc,X):
 
 		# new file to wait
 		tidal_cycle=os.path.join(dirout,'outputs','schout_0000_%i.nc' % (n+1))
+
+
+
 
 
 	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-1,P1,P2)
@@ -113,7 +124,7 @@ def include_farm(run_parameters,pw):
 
 
 
-def run(run_parameters):
+def Wrapper(run_parameters):
 
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
@@ -180,8 +191,6 @@ def run(run_parameters):
 
 		# NRUN+=1
 
-
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Do a run')
 	parser.add_argument('--yaml', metavar='yaml', type=str,
@@ -193,4 +202,4 @@ if __name__ == "__main__":
 	with open(args.yaml ,'r') as f:
 		run_parameters = yaml.load(f)
 
-	run(run_parameters)
+	Wrapper(run_parameters)
