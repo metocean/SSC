@@ -63,7 +63,7 @@ def set_params(options,param_file):
 	options['params']['hotstart dt']= 44712 # in hours 
 
 
-	p=param(options['param.in'])
+	p=param()
 	p.pass_values(options['params'])
 	p.write(fileout=param_file)
 
@@ -139,7 +139,8 @@ if not os.path.exists(run_parameters['saving directory']):
 	os.system('mkdir %s' %run_parameters['saving directory'])
 
 ## make an outputs directory for schism
-os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
+if not os.path.exists(os.path.join(run_parameters['run directory'],'outputs')):
+	os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
 
 
 NRUN=0

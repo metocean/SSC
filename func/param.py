@@ -121,7 +121,7 @@ def default_value():
 
 
 class param(object):
-	def __init__(self,tmpl):
+	def __init__(self):
 		self.tmpl=tmpl
 		self.opt=default_value()
 
