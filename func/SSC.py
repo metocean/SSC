@@ -113,7 +113,7 @@ def farm(run_parameters,pw):
 
 
 
-def run(**run_parameters)
+def run(**run_parameters):
 
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
