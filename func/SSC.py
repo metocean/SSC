@@ -126,7 +126,7 @@ pw=power(sc) # this wil get the power after 1 tidal cycle
 
 
 ## copy the inputs
-os.system('cp %s %s' %('/home/user/SSC/initial_files/*'),run_parameters['run directory']))
+os.system('cp %s %s' %('/home/user/SSC/initial_files/*',run_parameters['run directory']))
 
 
 ## check path and create it
