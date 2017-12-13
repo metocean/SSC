@@ -43,7 +43,7 @@ def run_schism(mode,schism=None,proc=None,dirout=None):
 			subprocess.Popen('/opt/mpich/bin/mpd')
 		except:
 			pass
-		proc=subprocess.Popen('mpirun -np %i bash -c "ulimit -s unlimited && %s" &' % NPROC,schism,\
+		proc=subprocess.Popen('mpirun -np %i bash -c "ulimit -s unlimited && %s" &' % (NPROC,schism),\
 						cwd="%s" % dirout,\
 						shell=True,\
 						preexec_fn=os.setsid)
