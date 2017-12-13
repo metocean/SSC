@@ -113,14 +113,14 @@ def farm(run_parameters,pw):
 
 
 
-def run(**run_parameters):
+def run(run_parameters):
 
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
 		os.system('mkdir %s' %run_parameters['run directory'])
 
 
-## copy the inputs
+	## copy the inputs
 	os.system('cp %s %s' %('/home/user/SSC/initial_files/*',run_parameters['run directory']))
 
 
@@ -138,50 +138,47 @@ def run(**run_parameters):
 		os.system('rm %s' % os.path.join(run_parameters['run directory'],'outputs/*'))
 
 
-	NRUN=0
-	while NRUN<MAXRUN:
-	# # reload the option file
-		with open(args.yaml ,'r') as f:
-			run_parameters = yaml.load(f)
+	# NRUN=0
+	# while NRUN<MAXRUN:
 
-		## create the parameter file
-		set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
-		## create the GR3 with polygons and add the farms inside PW
-		farm(run_parameters,pw)
+	## create the parameter file
+	set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
+	## create the GR3 with polygons and add the farms inside PW
+	farm(run_parameters,pw)
 
-		## run SCHISM
-		proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
-		print 'schism running in the background'
+	## run SCHISM
+	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
+	print 'schism running in the background'
 
 
-		## Main loop in search of a steady state
-		pw,n=search_steady_state(run_parameters['run directory'],\
-			pw,\
-			sc,\
-			run_parameters['params']['X'])
+	## Main loop in search of a steady state
+	pw,n=search_steady_state(run_parameters['run directory'],\
+		pw,\
+		sc,\
+		run_parameters['params']['X'])
 
-		## save to saving directory
-		pw.export_nc(n-1,outdir=run_parameters['saving directory'])
-		print 'schism data exported to %s' % run_parameters['saving directory']
+	## save to saving directory
+	pw.export_nc(n-1,outdir=run_parameters['saving directory'])
+	print 'schism data exported to %s' % run_parameters['saving directory']
 
-		## kill schism
-		run_schism('kill',proc=proc)
-		print 'schism is killed'
+	## kill schism
+	run_schism('kill',proc=proc)
+	print 'schism is killed'
 
-		## delete file from previous run
-		os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
-		os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
-		for farm in run_parameters['farms']:
-			for filename in run_parameters['farms'][farm]['params']:
-				os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
-
-
-		## wait that new yaml file has arived
-		while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
-			time.sleep(1)
+	## delete file from previous run
+	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
+	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
+	for farm in run_parameters['farms']:
+		for filename in run_parameters['farms'][farm]['params']:
+			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
 
 
-		NRUN+=1
+		# ## wait that new yaml file has arived
+		# while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
+		# 	time.sleep(1)
+
+
+		# NRUN+=1
 
 
 
