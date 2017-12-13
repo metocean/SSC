@@ -113,95 +113,87 @@ def farm(run_parameters,pw):
 
 
 
-parser = argparse.ArgumentParser(description='Do a run')
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('--yaml', metavar='yaml', type=str,
-                   help='Yaml file')
-group.add_argument('--dict', metavar='dict', type=str,
-                   help='dictionary')
-args = parser.parse_args()
+def run(**run_parameters)
 
-if args.yaml is not None:
-	# # get all the option from the yaml file
-	with open(args.yaml ,'r') as f:
-		run_parameters = yaml.load(f)
-else:
-	# get the option from the dictionnnary
-	run_parameters=args.dict
-
-import pdb;pdb.set_trace()
-
-
-
-## check path and create it
-if not os.path.exists(run_parameters['run directory']):
-	os.system('mkdir %s' %run_parameters['run directory'])
-
-
-
+	## check path and create it
+	if not os.path.exists(run_parameters['run directory']):
+		os.system('mkdir %s' %run_parameters['run directory'])
 
 
 ## copy the inputs
-os.system('cp %s %s' %('/home/user/SSC/initial_files/*',run_parameters['run directory']))
+	os.system('cp %s %s' %('/home/user/SSC/initial_files/*',run_parameters['run directory']))
+
+
+	sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
+	pw=power(sc) # this wil get the power after 1 tidal cycle
+
+
+	if not os.path.exists(run_parameters['saving directory']):
+		os.system('mkdir %s' %run_parameters['saving directory'])
+
+	## make an outputs directory for schism
+	if not os.path.exists(os.path.join(run_parameters['run directory'],'outputs')):
+		os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
+	else: # delete all the output
+		os.system('rm %s' % os.path.join(run_parameters['run directory'],'outputs/*'))
+
+
+	NRUN=0
+	while NRUN<MAXRUN:
+	# # reload the option file
+		with open(args.yaml ,'r') as f:
+			run_parameters = yaml.load(f)
+
+		## create the parameter file
+		set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
+		## create the GR3 with polygons and add the farms inside PW
+		farm(run_parameters,pw)
+
+		## run SCHISM
+		proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
+		print 'schism running in the background'
+
+
+		## Main loop in search of a steady state
+		pw,n=search_steady_state(run_parameters['run directory'],\
+			pw,\
+			sc,\
+			run_parameters['params']['X'])
+
+		## save to saving directory
+		pw.export_nc(n-1,outdir=run_parameters['saving directory'])
+		print 'schism data exported to %s' % run_parameters['saving directory']
+
+		## kill schism
+		run_schism('kill',proc=proc)
+		print 'schism is killed'
+
+		## delete file from previous run
+		os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
+		os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
+		for farm in run_parameters['farms']:
+			for filename in run_parameters['farms'][farm]['params']:
+				os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
+
+
+		## wait that new yaml file has arived
+		while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
+			time.sleep(1)
+
+
+		NRUN+=1
 
 
 
-sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
-pw=power(sc) # this wil get the power after 1 tidal cycle
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description='Do a run')
+	parser.add_argument('--yaml', metavar='yaml', type=str,
+	                   help='Yaml file')
 
+	args = parser.parse_args()
 
-if not os.path.exists(run_parameters['saving directory']):
-	os.system('mkdir %s' %run_parameters['saving directory'])
-
-## make an outputs directory for schism
-if not os.path.exists(os.path.join(run_parameters['run directory'],'outputs')):
-	os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
-else: # delete all the output
-	os.system('rm %s' % os.path.join(run_parameters['run directory'],'outputs/*'))
-
-
-NRUN=0
-while NRUN<MAXRUN:
-# # reload the option file
+	## get all the option from the yaml file
 	with open(args.yaml ,'r') as f:
 		run_parameters = yaml.load(f)
 
-	## create the parameter file
-	set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
-	## create the GR3 with polygons and add the farms inside PW
-	farm(run_parameters,pw)
-
-	## run SCHISM
-	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
-	print 'schism running in the background'
-
-
-	## Main loop in search of a steady state
-	pw,n=search_steady_state(run_parameters['run directory'],\
-		pw,\
-		sc,\
-		run_parameters['params']['X'])
-
-	## save to saving directory
-	pw.export_nc(n-1,outdir=run_parameters['saving directory'])
-	print 'schism data exported to %s' % run_parameters['saving directory']
-
-	## kill schism
-	run_schism('kill',proc=proc)
-	print 'schism is killed'
-
-	## delete file from previous run
-	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
-	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
-	for farm in run_parameters['farms']:
-		for filename in run_parameters['farms'][farm]['params']:
-			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
-
-
-	## wait that new yaml file has arived
-	while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
-		time.sleep(1)
-
-
-	NRUN+=1
-
+	run(run_parameters)
