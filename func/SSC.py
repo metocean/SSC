@@ -15,6 +15,7 @@ from export_nc import export_nc
 from polygons import *
 
 MAXRUN=10
+NPROC=3
 
 def add_farm_parameter(filename,hgrid,default,value,nodes):
 		attr_array = np.empty(hgrid.mesh.n_nodes())   
@@ -42,7 +43,7 @@ def run_schism(mode,schism=None,proc=None,dirout=None):
 			subprocess.Popen('/opt/mpich/bin/mpd')
 		except:
 			pass
-		proc=subprocess.Popen('mpirun -np 5 bash -c "ulimit -s unlimited && %s" &' % schism,\
+		proc=subprocess.Popen('mpirun -np %i bash -c "ulimit -s unlimited && %s" &' % NPROC,schism,\
 						cwd="%s" % dirout,\
 						shell=True,\
 						preexec_fn=os.setsid)
