@@ -2,6 +2,9 @@
 from mako.template import Template
 from mako.runtime import Context
 from StringIO import StringIO
+
+tmpl='/home/user/SSC/param.tmpl'
+
 def default_value():
 	dflt={}
 	dflt['dt']=60

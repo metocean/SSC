@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 import sys,os
-sys.path.append('/home/remy/Buisness/0336_SSC_tides/code/') 
-sys.path.append('/home/remy/Buisness/0336_SSC_tides/code/Bay_delta_scripts')
+sys.path.append(os.path.join(os.path.dirname(__file__),'..','Bay_delta_scripts'))
+sys.path.append(os.path.join(os.path.dirname(__file__),'..','func')) 
 import yaml
 import argparse
 from param import param
@@ -42,7 +42,7 @@ def run_schism(mode,schism=None,proc=None,dirout=None):
 			subprocess.Popen('/opt/mpich/bin/mpd')
 		except:
 			pass
-		proc=subprocess.Popen('/opt/mpich/bin/mpirun -np 5 bash -c "ulimit -s unlimited && %s" &' % schism,\
+		proc=subprocess.Popen('mpirun -np 5 bash -c "ulimit -s unlimited && %s" &' % schism,\
 						cwd="%s" % dirout,\
 						shell=True,\
 						preexec_fn=os.setsid)
@@ -126,7 +126,15 @@ pw=power(sc) # this wil get the power after 1 tidal cycle
 
 
 ## copy the inputs
-os.system('cp %s %s' %(os.path.join(run_parameters['input'],'*'),run_parameters['run directory']))
+os.system('cp %s %s' %('/home/user/SSC/initial_files/*'),run_parameters['run directory']))
+
+
+## check path and create it
+if not os.path.exists(run_parameters['run directory']):
+	os.system('mkdir %s' %run_parameters['run directory'])
+
+if not os.path.exists(run_parameters['saving directory']):
+	os.system('mkdir %s' %run_parameters['saving directory'])
 
 ## make an outputs directory for schism
 os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
@@ -144,7 +152,7 @@ while NRUN<MAXRUN:
 	farm(run_parameters,pw)
 
 	## run SCHISM
-	proc=run_schism('run',schism=run_parameters['schism'],proc=None,dirout=run_parameters['run directory'])
+	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
 
 
 	## Main loop in search of a steady state

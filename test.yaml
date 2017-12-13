@@ -1,0 +1,26 @@
+## input file for tidal farms
+# output directory
+run directory: /home/user/test1/
+saving directory: /home/user/data/
+
+# run parameter:
+params:
+ itur: 0
+ X: 0.01
+ bfric: 0
+ itr_met: 1
+
+# The tidal farms
+farms:
+  farm1:
+    vertices:
+     1730477 5400792
+     1738253 5411596
+     1749124 5407414
+     1744441 5392080
+     1734909 5391906
+    params:
+      drag.gr3:
+       default : 0.01
+       value: 0.1
+
