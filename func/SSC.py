@@ -171,7 +171,7 @@ while NRUN<MAXRUN:
 	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
 	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'input.yaml')))
 	for farm in run_parameters['farms']:
-		for filename in run_parameters['farms'][farm]['params']
+		for filename in run_parameters['farms'][farm]['params']:
 			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
 
 
