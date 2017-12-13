@@ -123,11 +123,7 @@ with open(args.yaml ,'r') as f:
 	run_parameters = yaml.load(f)
 
 
-sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
-pw=power(sc) # this wil get the power after 1 tidal cycle
-n=14
-pw.export_nc(n-1,outdir=run_parameters['saving directory'])
-sys.exit(-1)
+
 ## check path and create it
 if not os.path.exists(run_parameters['run directory']):
 	os.system('mkdir %s' %run_parameters['run directory'])
