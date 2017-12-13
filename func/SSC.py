@@ -76,6 +76,7 @@ def search_steady_state(dirout,pw,sc,X):
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X:
+		print 'wait for %s to be created' % tidal_cycle
 		# wait that the next files get created
 		while not os.path.exists(tidal_cycle): 
 			time.sleep(1)
@@ -156,6 +157,7 @@ while NRUN<MAXRUN:
 
 	## run SCHISM
 	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
+	print 'schism running in the background'
 
 
 	## Main loop in search of a steady state
@@ -166,9 +168,11 @@ while NRUN<MAXRUN:
 
 	## save to saving directory
 	pw.export_nc(n-1,run_parameters['saving directory'])
+	print 'schism data exported to %s' % run_parameters['saving directory']
 
 	## kill schism
 	run_schism('kill',proc=proc)
+	print 'schism is killed'
 
 	## delete file from previous run
 	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
