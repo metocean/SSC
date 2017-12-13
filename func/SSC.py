@@ -122,7 +122,8 @@ args = parser.parse_args()
 with open(args.yaml ,'r') as f:
 	run_parameters = yaml.load(f)
 
-
+pw.export_nc(n-1,run_parameters['saving directory'])
+sys.exit(-1)
 ## check path and create it
 if not os.path.exists(run_parameters['run directory']):
 	os.system('mkdir %s' %run_parameters['run directory'])

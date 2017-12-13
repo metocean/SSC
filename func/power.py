@@ -56,6 +56,7 @@ class power:
 		nc=netCDF4.Dataset(new_filename,'r+')
 		for farm in self.farms.keys():
 			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_node'))
+			import pdb;pdb.set_trace()
 			new_var[self.farms[farm]['nodes']]=self.farms[farm][typ]
 			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_node'))
 			new_var[:,self.farms[farm]['nodes']]=self.farms[farm][typ+' ts']
