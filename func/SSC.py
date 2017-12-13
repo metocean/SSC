@@ -100,7 +100,7 @@ def search_steady_state(dirout,pw,sc,X):
 	return pw,n
 
 	
-def farm(run_parameters,pw):
+def include_farm(run_parameters,pw):
 	for farm in run_parameters['farms']:
 		nodes=get_nodes(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes)
@@ -144,7 +144,7 @@ def run(run_parameters):
 	## create the parameter file
 	set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
 	## create the GR3 with polygons and add the farms inside PW
-	farm(run_parameters,pw)
+	include_farm(run_parameters,pw)
 
 	## run SCHISM
 	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
