@@ -18,8 +18,8 @@ MAXRUN=10
 
 def add_farm_parameter(filename,hgrid,default,value,nodes):
 		attr_array = np.empty(hgrid.mesh.n_nodes())   
-		attr_array.fill(0.01)    
-		attr_array[nodes]=99.
+		attr_array.fill(default)    
+		attr_array[nodes]=value
 		pw.hgrid.write_hgrid(filename, attr_array, False)
 
 def get_nodes(mesh,vertices):
