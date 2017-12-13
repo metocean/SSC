@@ -142,7 +142,7 @@ if not os.path.exists(run_parameters['saving directory']):
 os.system('mkdir %s' % os.path.join(run_parameters['run directory'],'outputs'))
 
 
-
+NRUN=0
 while NRUN<MAXRUN:
 # # reload the option file
 	with open(args.yaml ,'r') as f:
