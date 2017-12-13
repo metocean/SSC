@@ -114,10 +114,14 @@ def farm(run_parameters,pw):
 
 
 parser = argparse.ArgumentParser(description='Do a run')
-parser.add_argument('yaml', metavar='yaml', type=str,
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('--yaml', metavar='yaml', type=str,
                    help='Yaml file')
+group.add_argument('--dict', metavar='dict', type=str,
+                   help='dictionary')
 args = parser.parse_args()
 
+import pdb;pdb.set_trace()
 # # get all the option from the yaml file
 with open(args.yaml ,'r') as f:
 	run_parameters = yaml.load(f)
@@ -183,14 +187,14 @@ while NRUN<MAXRUN:
 
 	## delete file from previous run
 	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
-	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'input.yaml')))
+	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
 	for farm in run_parameters['farms']:
 		for filename in run_parameters['farms'][farm]['params']:
 			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
 
 
 	## wait that new yaml file has arived
-	while not os.path.exists(os.path.join(run_parameters['run directory'],'input.yaml')): 
+	while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
 		time.sleep(1)
 
 
