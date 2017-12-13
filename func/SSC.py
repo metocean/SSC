@@ -121,10 +121,15 @@ group.add_argument('--dict', metavar='dict', type=str,
                    help='dictionary')
 args = parser.parse_args()
 
+if args.yaml is not None:
+	# # get all the option from the yaml file
+	with open(args.yaml ,'r') as f:
+		run_parameters = yaml.load(f)
+else:
+	# get the option from the dictionnnary
+	run_parameters=args.dict
+
 import pdb;pdb.set_trace()
-# # get all the option from the yaml file
-with open(args.yaml ,'r') as f:
-	run_parameters = yaml.load(f)
 
 
 
