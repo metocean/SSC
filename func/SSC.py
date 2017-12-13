@@ -100,7 +100,7 @@ def search_steady_state(dirout,pw,sc,X):
 	
 def farm(run_parameters,pw):
 	for farm in run_parameters['farms']:
-		nodes=get_nodes(pw.hgrid,run_parameters['farms'][farm]['vertices'])
+		nodes=get_nodes(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes)
 
 		for filename in run_parameters['farms'][farm]['params']:
