@@ -141,3 +141,21 @@ RUN cd /home/user/SSC/initial_files &&\
     rm -rf /home/user/SSC/initial_files/input_files
 
    
+## ADD libspatial for Rtree package
+RUN cd /home/user/ &&\
+    wget 'http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz' &&\
+    tar zxvf spatialindex-src-1.8.5.tar.gz &&\
+    cd /home/user/spatialindex-src-1.8.5/ &&\
+    ./configure &&\
+    make &&\
+    sudo make install
+
+ENV LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
+
+
+## ADD more python tools
+RUN sudo yum -y install python-pip python-devel
+
+## ADD python lib
+RUN sudo pip install netCDF4 pyyaml mako numpy==1.8.2 rtree pyproj scipy
+
