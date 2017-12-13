@@ -23,7 +23,7 @@ class power:
 
 	def add_farm(self,name,vertices,nodes):
 		vertices=[float(x) for x in vertices.split(' ')]
-
+		self.farms[name]={}
 		self.farms[name]['limits']=[[vertices[0::2]],[vertices[1::2]]]
 		self.farms[name]['nodes']=nodes
 
