@@ -40,8 +40,8 @@ def get_nodes(mesh,vertices):
 			Elems+=map( lambda x: int(x), e )
 
 	Elems=list(set(Elems))
-	ref=np.zeros(mesh.nodes.shape)
-	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref.reshape(mesh.nodes.shape[0],1)))
+	ref=np.zeros(mesh.nodes.shape[0],1)
+	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
 #populate (x,y) and elevation information for each triangular element
 	tri = np.zeros((len(Elems),3,4))
 	for itri in range(len(Elems)):
