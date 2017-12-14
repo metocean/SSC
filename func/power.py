@@ -8,18 +8,35 @@ import netCDF4
 from schism_setup import load_gr3
 from schismIO import schismIO
 import netCDF4
-from SSC import get_areas
+
 
 rho=1025 # kg/m3
+def cal_tri_area(a):
+    return np.absolute((a[0]*(a[3]-a[5])+a[2]*(a[5]-a[1])+a[4]*(a[1]-a[3]))/2.0)
+
+
+def get_areas(mesh,Elems):
+	ref=np.zeros((mesh.nodes.shape[0],1))
+	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
+#populate (x,y) and elevation information for each triangular element
+	tri = np.zeros((len(Elems),3,3))
+	for itri in range(len(Elems)):
+		for ivert in range(3):
+			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
+
+	areas = cal_tri_area(tri[:,:,0:2].reshape(len(Elems),6).transpose())
+
+	return areas
+
 
 class power:
-	def __init__(self,SC):
+	def __init__(self,SC,areas):
 		self.sc=SC
 		self.dir= SC.dir
 		self.hgrid = load_gr3(os.path.join(SC.dir,'hgrid.gr3'))
 		self.Xss=0.02
-		self.farms={}
 		areas=get_areas(self.hgrid.mesh,self.hgrid.mesh.elements)
+		self.farms={}
 		self.farms['whole']={'nodes':range(0,len(self.hgrid.mesh.nodes[:,0])),\
 				'limits':[[self.hgrid.mesh.nodes[:,0].min(),self.hgrid.mesh.nodes[:,0].max()],[self.hgrid.mesh.nodes[:,1].min(),self.hgrid.mesh.nodes[:,1].max()]],\
 				'elements':  self.hgrid.mesh.elements,\

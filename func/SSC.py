@@ -9,7 +9,7 @@ import subprocess
 import signal
 import time
 from schismIO import schismIO
-from power import power
+from power import power,get_areas
 import numpy as np
 from export_nc import export_nc
 from polygons import *
@@ -23,23 +23,6 @@ def add_farm_parameter(filename,hgrid,default,value,nodes):
 		attr_array.fill(default)    
 		attr_array[nodes]=value
 		hgrid.write_hgrid(filename, attr_array, False)
-
-def cal_tri_area(a):
-    return np.absolute((a[0]*(a[3]-a[5])+a[2]*(a[5]-a[1])+a[4]*(a[1]-a[3]))/2.0)
-
-
-def get_areas(mesh,Elems):
-	ref=np.zeros((mesh.nodes.shape[0],1))
-	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
-#populate (x,y) and elevation information for each triangular element
-	tri = np.zeros((len(Elems),3,3))
-	for itri in range(len(Elems)):
-		for ivert in range(3):
-			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
-
-	areas = cal_tri_area(tri[:,:,0:2].reshape(len(Elems),6).transpose())
-
-	return areas
 
 
 def get_nodes_elements(mesh,vertices):
