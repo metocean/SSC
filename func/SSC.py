@@ -43,7 +43,7 @@ def get_nodes(mesh,vertices):
 	ref=np.zeros((mesh.nodes.shape[0],1))
 	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
 #populate (x,y) and elevation information for each triangular element
-	tri = np.zeros((len(Elems),3,4))
+	tri = np.zeros((len(Elems),3,3))
 	for itri in range(len(Elems)):
 		for ivert in range(3):
 			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
