@@ -30,7 +30,7 @@ def get_areas(mesh,Elems):
 
 
 class power:
-	def __init__(self,SC,areas):
+	def __init__(self,SC):
 		self.sc=SC
 		self.dir= SC.dir
 		self.hgrid = load_gr3(os.path.join(SC.dir,'hgrid.gr3'))
