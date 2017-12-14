@@ -36,7 +36,8 @@ def get_nodes(mesh,vertices):
 		flag = poly.check_point_inside_polygon(node[:2])
 		if flag:
 			Nodes.append(node_i)
-			Elems.append(mesh.get_elems_i_from_node(node_i))
+			e=mesh.get_elems_i_from_node(node_i)
+			Elems+=map( lambda x: int(x), e )
 
 
 	import pdb;pdb.set_trace()
