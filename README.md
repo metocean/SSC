@@ -6,7 +6,7 @@ Build the docker
 
 You can either download the image from docker hub
 ```
-$ 
+$ docker pull metocean/ssc_tide
 ```
 or build the image from the dockerfile:
 
