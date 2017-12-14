@@ -30,15 +30,18 @@ def get_nodes(mesh,vertices):
 	box=poly.box()
 	nodes = mesh.find_nodes_in_box(box)
 	Nodes=[]
+	Elems=[]
 	for node_i in nodes:
 		node =mesh.nodes[node_i]
 		flag = poly.check_point_inside_polygon(node[:2])
 		if flag:
 			Nodes.append(node_i)
+			Elems.append(mesh.get_elems_i_from_node(node_i))
+
 
 	import pdb;pdb.set_trace()
 
-	return Nodes
+	return Nodes,Elems
 def run_schism(mode,schism=None,proc=None,dirout=None):
 #run the model in the background
 	if mode is 'run':
