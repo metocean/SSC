@@ -24,6 +24,9 @@ def add_farm_parameter(filename,hgrid,default,value,nodes):
 		attr_array[nodes]=value
 		hgrid.write_hgrid(filename, attr_array, False)
 
+def cal_tri_area(a):
+    return np.absolute((a[0]*(a[3]-a[5])+a[2]*(a[5]-a[1])+a[4]*(a[1]-a[3]))/2.0)
+
 def get_nodes(mesh,vertices):
 	vertices = map(float, vertices.split())
 	poly = Polygon(vertices, '', 0,'none')
@@ -48,6 +51,7 @@ def get_nodes(mesh,vertices):
 		for ivert in range(3):
 			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
 
+	tri_areas = cal_tri_area(tri[:,:,0:2].reshape(len(Elems),6).transpose())
 	import pdb;pdb.set_trace()
 
 	return Nodes,Elems
