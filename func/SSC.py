@@ -27,7 +27,22 @@ def add_farm_parameter(filename,hgrid,default,value,nodes):
 def cal_tri_area(a):
     return np.absolute((a[0]*(a[3]-a[5])+a[2]*(a[5]-a[1])+a[4]*(a[1]-a[3]))/2.0)
 
-def get_nodes(mesh,vertices):
+
+def get_areas(mesh,Elems):
+	ref=np.zeros((mesh.nodes.shape[0],1))
+	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
+#populate (x,y) and elevation information for each triangular element
+	tri = np.zeros((len(Elems),3,3))
+	for itri in range(len(Elems)):
+		for ivert in range(3):
+			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
+
+	areas = cal_tri_area(tri[:,:,0:2].reshape(len(Elems),6).transpose())
+
+	return areas
+
+
+def get_nodes_elements(mesh,vertices):
 	vertices = map(float, vertices.split())
 	poly = Polygon(vertices, '', 0,'none')
 	box=poly.box()
@@ -43,16 +58,6 @@ def get_nodes(mesh,vertices):
 			Elems+=map( lambda x: int(x), e )
 
 	Elems=list(set(Elems))
-	ref=np.zeros((mesh.nodes.shape[0],1))
-	nodes_coor = np.hstack((mesh.nodes[:,0:2],ref))
-#populate (x,y) and elevation information for each triangular element
-	tri = np.zeros((len(Elems),3,3))
-	for itri in range(len(Elems)):
-		for ivert in range(3):
-			tri[itri,ivert,:] = nodes_coor[mesh.elems[Elems[itri]][ivert]] 
-
-	tri_areas = cal_tri_area(tri[:,:,0:2].reshape(len(Elems),6).transpose())
-	import pdb;pdb.set_trace()
 
 	return Nodes,Elems
 def run_schism(mode,schism=None,proc=None,dirout=None):
@@ -129,8 +134,9 @@ def search_steady_state(dirout,pw,sc,X):
 	
 def include_farm(run_parameters,pw):
 	for farm in run_parameters['farms']:
-		nodes=get_nodes(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
-		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes)
+		nodes,elements=get_nodes_elements(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
+		areas=get_area(pw.hgrid.mesh,elements)
+		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes,elements,areas)
 
 		for filename in run_parameters['farms'][farm]['params']:
 			default=run_parameters['farms'][farm]['params'][filename]['default']
