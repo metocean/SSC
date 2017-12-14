@@ -4,11 +4,7 @@ Sustainable Sea project
 Build the docker
 ====
 
-You can either download the image from docker hub
-```
-$ docker pull metocean/ssc_tide
-```
-or build the image from the dockerfile:
+build the image from the dockerfile:
 
 ```
 $ cd /where/you/save/Dockerfile
@@ -58,14 +54,11 @@ update the image from the container:
 ```
 $ docker commit -m "new ssc_tide version" [container id] metocean/ssc_tide:latest
 ```
-where you can fint the container id with:
+where you can find the container id with:
 ```
 $ sudo docker ps -a
 ```
-and then you push the image to docker hub
-```
-$ docker push metocean/ssc_tide:latest
-```
+
 
 Save the work locally
 ====
