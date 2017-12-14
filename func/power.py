@@ -35,7 +35,7 @@ class power:
 		self.dir= SC.dir
 		self.hgrid = load_gr3(os.path.join(SC.dir,'hgrid.gr3'))
 		self.Xss=0.02
-		areas=get_areas(self.hgrid.mesh,self.hgrid.mesh.elems)
+		areas=get_areas(self.hgrid.mesh,range(0,self.hgrid.mesh.n_elems()))
 		self.farms={}
 		self.farms['whole']={'nodes':range(0,len(self.hgrid.mesh.nodes[:,0])),\
 				'limits':[[self.hgrid.mesh.nodes[:,0].min(),self.hgrid.mesh.nodes[:,0].max()],[self.hgrid.mesh.nodes[:,1].min(),self.hgrid.mesh.nodes[:,1].max()]],\
