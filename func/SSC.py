@@ -15,7 +15,7 @@ from export_nc import export_nc
 from polygons import *
 import timeit
 
-MAXRUN=10
+
 NPROC=3
 
 def add_farm_parameter(filename,hgrid,default,value,nodes):
@@ -29,14 +29,16 @@ def get_nodes(mesh,vertices):
 	poly = Polygon(vertices, '', 0,'none')
 	box=poly.box()
 	nodes = mesh.find_nodes_in_box(box)
-	element_i=[]
+	Nodes=[]
 	for node_i in nodes:
-	    node =mesh.nodes[node_i]
-	    flag = poly.check_point_inside_polygon(node[:2])
-	    if flag:
-	          element_i.append(node_i)
+		node =mesh.nodes[node_i]
+		flag = poly.check_point_inside_polygon(node[:2])
+		if flag:
+			Nodes.append(node_i)
 
-	return element_i
+	import pdb;pdb.set_trace()
+
+	return Nodes
 def run_schism(mode,schism=None,proc=None,dirout=None):
 #run the model in the background
 	if mode is 'run':
@@ -105,8 +107,6 @@ def search_steady_state(dirout,pw,sc,X):
 
 
 
-
-
 	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-1,P1,P2)
 	return pw,n
 
@@ -149,9 +149,6 @@ def Wrapper(run_parameters):
 		os.system('rm %s' % os.path.join(run_parameters['run directory'],'outputs/*'))
 
 
-	# NRUN=0
-	# while NRUN<MAXRUN:
-
 	## create the parameter file
 	set_params(run_parameters,os.path.join(run_parameters['run directory'],'param.in'))
 	## create the GR3 with polygons and add the farms inside PW
@@ -178,18 +175,10 @@ def Wrapper(run_parameters):
 
 	## delete file from previous run
 	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
-	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'*.yaml')))
 	for farm in run_parameters['farms']:
 		for filename in run_parameters['farms'][farm]['params']:
 			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
 
-
-		# ## wait that new yaml file has arived
-		# while not os.path.exists(os.path.join(run_parameters['run directory'],'*.yaml')): 
-		# 	time.sleep(1)
-
-
-		# NRUN+=1
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Do a run')
