@@ -9,6 +9,7 @@ params:
  X: 0.01
  bfric: 0
  itr_met: 1
+ bdrc61: 1
 
 # The tidal farms
 farms:
