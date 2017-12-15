@@ -58,8 +58,19 @@ class power:
 	def get_power(self,file_number):
 		nc=netCDF4.Dataset(os.path.join(self.sc.dir,'outputs','schout_%i.nc' % file_number))
 		ts=len(nc.variables['time'])
-		U=nc.variables['dahv'][:,:,0]
-		V=nc.variables['dahv'][:,:,1]
+		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
+		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
+		Cd=nc.variabes['bottom_drag_coef'][:,:] # bottom drag [time,node]
+		
+		for farm in self.farms.keys():
+			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
+			e=self.farms[name]['elements'] # element inside the farm
+			n=self.farms[name]['nodes'] # nodes inside the farm
+			tri=self.hgrid.mesh.elems[e,:]
+			import pdb;pdb.set_trace()
+			Cde = np.average(depth_0, axis=1) # bottom drag at each element
+
+
 		spd=np.sqrt(U**2+V**2)
 		P_ts=0.5*rho*spd**3
 		P=sum(P_ts)/spd.shape[0]
