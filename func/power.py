@@ -39,7 +39,7 @@ class power:
 		self.farms={}
 		self.farms['whole']={'nodes':range(0,len(self.hgrid.mesh.nodes[:,0])),\
 				'limits':[[self.hgrid.mesh.nodes[:,0].min(),self.hgrid.mesh.nodes[:,0].max()],[self.hgrid.mesh.nodes[:,1].min(),self.hgrid.mesh.nodes[:,1].max()]],\
-				'elements':  self.hgrid.mesh.elems,\
+				'elements':  range(0,self.hgrid.mesh.n_elems()),\
 				'areas': areas}
 
 	def add_farm(self,name,vertices,nodes,elements,areas):
