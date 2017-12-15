@@ -60,25 +60,39 @@ class power:
 		ts=len(nc.variables['time'])
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
-		Cd=nc.variabes['bottom_drag_coef'][:,:] # bottom drag [time,node]
+		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
 		
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
-			e=self.farms[name]['elements'] # element inside the farm
-			n=self.farms[name]['nodes'] # nodes inside the farm
+			e=self.farms[farm]['elements'] # element inside the farm
+			n=self.farms[farm]['nodes'] # nodes inside the farm
 			tri=self.hgrid.mesh.elems[e,:]
-			import pdb;pdb.set_trace()
-			Cde = np.average(depth_0, axis=1) # bottom drag at each element
+			Cde=Cd[:,tri]
+			Ue=U[:,tri]
+			Ve=V[:,tri]
 
+			Cde = np.average(Cde, axis=2) # bottom drag at each element
+			Ue = np.average(Ue, axis=2) # U at each element
+			Ve = np.average(Ve, axis=2) # V at each element
 
-		spd=np.sqrt(U**2+V**2)
-		P_ts=0.5*rho*spd**3
-		P=sum(P_ts)/spd.shape[0]
+			spd=np.sqrt(Ue**2+Ve**2) # Speed at each element
+			P_ts=0.5*rho*spd**3 # Power
+			Cdf=(Cde*A)/np.sum(A) # drag
 
-		for farm in self.farms.keys():
-			self.farms[farm]['mean power']=np.mean(P[self.farms[farm]['nodes']])
-			self.farms[farm]['power']=P[self.farms[farm]['nodes']]
-			self.farms[farm]['power ts']=P_ts[:,self.farms[farm]['nodes']]
+			P=P_ts*Cdf
+
+			P=sum(P_ts)/spd.shape[0]
+
+			# tranform from element to node by divided by 3 maybe this is not really right
+			Pn=np.zeros((nc.variables['dahv'].shape[1],1))
+			Pn_ts=np.zeros((nc.variables['time'].shape[0],nc.variables['dahv'].shape[1]))
+			for i in range(0,len(P)):
+				Pn[tri[i]]=P[i]/3
+				Pn_ts[:,tri[i]]=np.vstack([P_ts[:,i]/3,P_ts[:,i]/3,P_ts[:,i]/3]).T
+
+			self.farms[farm]['mean power']=np.mean(P) # average power over one tidal cycle over the whole farm 
+			self.farms[farm]['power']=Pn[self.farms[farm]['nodes']] # average power over one tidal cycle for each node
+			self.farms[farm]['power ts']=Pn_ts[:,self.farms[farm]['nodes']] # power for each timestep and each node
 
 	def export_nc(self,file_number,typ='power',outdir=None):
 		if outdir is None:
