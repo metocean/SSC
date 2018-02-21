@@ -4,16 +4,16 @@ Sustainable Sea project
 Build the docker
 ====
 
-build the image from the dockerfile:
+Build the image from the dockerfile:
 
 ```
 $ cd /where/you/save/Dockerfile
 $ sudo docker build -t metocean/ssc_tide .
 ```
 
-After this you will have an image called cawthron which contain:
--the schism model compil ( you can type schism from anywhere inside)
--the combine_output10 program to compil the output
+After this you will have an image called cawthron which contains:
+-the schism model compile ( you can type schism from anywhere inside)
+-the combine_output10 program to compile the output
 -the git hub folder with all the code
 everything will be in /home/user/SSC
 
@@ -38,9 +38,9 @@ $ git pull to download the latest code
 ```
 To run my code you can test with
 ```
-$ python /home/user/SSC/funct/SSC.py --yaml /home/user/SSC/test.yaml
+$ python /home/user/SSC/func/SSC.py --yaml /home/user/SSC/test.yaml
 ```
-or insert it inot another function:
+or insert it into another function:
 ```
 from SSC import wrapper
 wrapper(parameters)
