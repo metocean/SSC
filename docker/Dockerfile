@@ -20,15 +20,15 @@ RUN yum -y install libcurl-devel
 
 # Get HDF5, NETCDF, NETDF-FORTRAN AND MPICH2 via ftp/http
 RUN echo "-----------------GET Netcdf MPICH and HDF5"-----------------"" &&\ 
-#    wget ftp://ftp.hdfgroup.org/HDF5/releases/hdf5-1.10/hdf5-1.10.1/src/hdf5-1.10.1.tar.gz && \
+# Commented out as hdfgroup.org no longer allowing anonymous ftp login
+#   wget ftp://ftp.hdfgroup.org/HDF5/releases/hdf5-1.10/hdf5-1.10.1/src/hdf5-1.10.1.tar.gz && \
     wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.5.0.tar.gz && \
     wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-fortran-4.4.4.tar.gz && \
     wget http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz 
 
-
-
 # Install HDF5
-#RUN tar zxvf hdf5-1.10.1.tar.gz && \
+# Commented out as archive already untarred via ADD hdf5-1.10.1.tar.gz /
+# RUN tar zxvf hdf5-1.10.1.tar.gz && \
 RUN cd hdf5-1.10.1 && \
     ./configure --prefix=/usr/local \
                 --enable-shared \
@@ -53,8 +53,6 @@ RUN tar zxvf netcdf-4.5.0.tar.gz && \
     cd .. 
 #    rm -rf /netcdf-4.5.0 /netcdf-4.5.0.tar.gz
 
-
-
 # Install NETCDF-FORTRAN
 RUN tar zxvf netcdf-fortran-4.4.4.tar.gz && \
     cd netcdf-fortran-4.4.4 && \
@@ -67,7 +65,7 @@ RUN tar zxvf netcdf-fortran-4.4.4.tar.gz && \
     make install && \
     cd .. 
 #    rm -rf /netcdf-fortran-4.4.3 /netcdf-fortran-4.4.3.tar.gz
-#
+
 ## Install MPICH2
 RUN tar zxvf mpich-3.2.tar.gz && \
     cd mpich-3.2 && \
@@ -92,8 +90,6 @@ RUN cp /usr/lib/gcc/x86_64-redhat-linux/4.8.2/libquadmath.so /usr/local/lib/libq
 
 RUN useradd -ms /bin/bash user
 
-
-
 ## Downloading schism
 RUN cd /home/user/ && \
     svn co http://columbia.vims.edu/schism/tags/v5.5.0
@@ -112,12 +108,10 @@ RUN cd /home/user/v5.5.0/src/ &&\
     make &&\
     sudo cp /home/user/v5.5.0/src/pschism_5.5.0__VL /usr/local/bin/schism
 
-
 ## Compile combine code
 RUN cd /home/user/v5.5.0/src/Utility/Combining_Scripts/ &&\
     gfortran -ffree-line-length-none -cpp -O2 -o combine_output10 ../UtilLib/argparse.F90 combine_output10.f90 ../UtilLib/schism_geometry.f90 -I/usr/local/include -L/usr/local/lib -lnetcdf -lnetcdff &&\
     sudo cp combine_output10 /usr/local/bin/
-
 
 ## Download git lfs 
 RUN cd /home/user/ &&\
@@ -133,6 +127,7 @@ RUN cd /home/user/git-lfs-2.3.4 &&\
 
 # download all the code from github
 RUN cd /home/user &&\
+# Changed to https:// as git:// failing
 #    git lfs clone git://github.com/metocean/SSC.git
 git lfs clone https://github.com/metocean/SSC.git
 
@@ -142,7 +137,6 @@ RUN cd /home/user/SSC/initial_files &&\
     mv input_files/* /home/user/SSC/initial_files &&\
     rm /home/user/SSC/initial_files/input_files.zip &&\
     rm -rf /home/user/SSC/initial_files/input_files
-
    
 ## ADD libspatial for Rtree package
 RUN cd /home/user/ &&\
@@ -154,7 +148,6 @@ RUN cd /home/user/ &&\
     sudo make install
 
 ENV LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
-
 
 ## ADD more python tools
 RUN sudo yum -y install python-pip python-devel
