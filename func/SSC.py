@@ -68,7 +68,7 @@ def set_params(options,param_file):
 	options['params']['output dt']= 486 
 	options['params']['file length']= 44712 #12.42 hours in seconds
 	options['params']['output hotstart']= 0
-	options['params']['hotstart dt']= 44712 # in hours 
+	options['params']['hotstart dt']= 44712 # in seconds 
 
 
 	p=param()
@@ -130,6 +130,9 @@ def include_farm(run_parameters,pw):
 
 
 def Wrapper(run_parameters):
+	# Those are hardwier inside the Docker
+	run_parameters['run directory']='/home/user/run/input/'
+	run_parameters['saving directory']='/home/user/run/output/'
 
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
