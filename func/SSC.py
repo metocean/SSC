@@ -26,7 +26,7 @@ def add_farm_parameter(filename,hgrid,default,value,nodes):
 
 
 def get_nodes_elements(mesh,vertices):
-	vertices = map(float, vertices.split())
+	#vertices = map(float, vertices.split())
 	poly = Polygon(vertices, '', 0,'none')
 	box=poly.box()
 	nodes = mesh.find_nodes_in_box(box)
