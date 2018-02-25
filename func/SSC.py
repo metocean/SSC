@@ -120,10 +120,10 @@ def include_farm(run_parameters,pw):
 		nodes,elements=get_nodes_elements(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
 		areas=get_areas(pw.hgrid.mesh,elements)
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes,elements,areas)
-
-		for filename in run_parameters['farms'][farm]['params']:
-			default=run_parameters['farms'][farm]['params'][filename]['default']
-			value=run_parameters['farms'][farm]['params'][filename]['value']
+		run_parameters['farms'][farm].pop('vertices')
+		for filename in run_parameters['farms'][farm]:
+			default=run_parameters['farms'][farm][filename]['default']
+			value=run_parameters['farms'][farm][filename]['value']
 			add_farm_parameter(os.path.join(run_parameters['run directory'],filename),\
 				pw.hgrid,default,value,nodes)
 
@@ -181,11 +181,11 @@ def Wrapper(run_parameters):
 	run_schism('kill',proc=proc)
 	print 'schism is killed'
 
-	## delete file from previous run
-	os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
-	for farm in run_parameters['farms']:
-		for filename in run_parameters['farms'][farm]['params']:
-			os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
+	# ## delete file from previous run
+	# os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
+	# for farm in run_parameters['farms']:
+	# 	for filename in run_parameters['farms'][farm]['params']:
+	# 		os.system('rm %s' % (os.path.join(run_parameters['run directory'],filename)))
 
 
 if __name__ == "__main__":
