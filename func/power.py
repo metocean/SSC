@@ -43,9 +43,9 @@ class power:
 				'areas': areas}
 
 	def add_farm(self,name,vertices,nodes,elements,areas):
-		vertices=[float(x) for x in vertices.split(' ')]
+		#vertices=[float(x) for x in vertices.split(' ')]
 		self.farms[name]={}
-		self.farms[name]['limits']=[[vertices[0::2]],[vertices[1::2]]]
+		self.farms[name]['limits']=[[float(x[0]) for x in vertices],[float(x[1]) for x in vertices]]
 		self.farms[name]['nodes']=nodes
 		self.farms[name]['elements']=elements
 		self.farms[name]['areas']=areas
