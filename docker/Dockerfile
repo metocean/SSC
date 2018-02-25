@@ -1,7 +1,7 @@
 FROM centos:centos7
 MAINTAINER Remy Zyngfogel <remy@metocean.co.nz>
 
-ADD hdf5-1.10.1.tar.gz /
+ADD packages/hdf5-1.10.1.tar.gz /
 
 RUN yum -y install epel-release &&\
     yum -y install git vim sudo tar unzip subversion wget &&\
@@ -156,3 +156,8 @@ RUN sudo yum -y install python-pip python-devel
 RUN sudo pip install netCDF4 pyyaml mako numpy==1.8.2 rtree pyproj scipy
 
 USER user
+
+RUN mkdir /home/user/run &&\
+    mkdir /home/user/run/input/ &&\
+    mkdir /home/user/run/output/ 
+
