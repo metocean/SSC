@@ -71,17 +71,20 @@ class power:
 			Ue=U[:,tri]
 			Ve=V[:,tri]
 
-			Cde = np.average(Cde, axis=2) # bottom drag at each element
-			Ue = np.average(Ue, axis=2) # U at each element
-			Ve = np.average(Ve, axis=2) # V at each element
-
+			# calcution first at each node
 			spd=np.sqrt(Ue**2+Ve**2) # Speed at each element
-			P_ts=0.5*rho*spd**3 # Power
-			Cdf=(Cde*A)/np.sum(A) # drag
+			P_ts=rho*spd**3 # Power
+
+			# Then calculation for each element
+			Cde = np.average(Cde, axis=2) # bottom drag at each element
+			Cdf=(Cde*A)/np.sum(A) # drag for one element
+			P_ts=np.average(P_ts, axis=2)	#Power for each element
 
 			P=P_ts*Cdf
 
 			P=sum(P_ts)/spd.shape[0]
+
+
 
 			# tranform from element to node by divided by 3 maybe this is not really right
 			Pn=np.zeros((nc.variables['dahv'].shape[1],1))
