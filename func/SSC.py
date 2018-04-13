@@ -116,18 +116,30 @@ def search_steady_state(dirout,pw,sc,X):
 
 	
 def include_farm(run_parameters,pw):
+	## Get all filename to include in the run and initializ:
+	files={}
 	for farm in run_parameters['farms']:
 		nodes,elements=get_nodes_elements(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
 		areas=get_areas(pw.hgrid.mesh,elements)
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes,elements,areas)
 		run_parameters['farms'][farm].pop('vertices')
 		for filename in run_parameters['farms'][farm]:
-			default=run_parameters['farms'][farm][filename]['default']
-			value=run_parameters['farms'][farm][filename]['value']
-			add_farm_parameter(os.path.join(run_parameters['run directory'],filename),\
-				pw.hgrid,default,value,nodes)
+			if filename not in files:
+				files[filename]= np.empty(pw.hgrid.mesh.n_nodes())
+				files[filename].fill(run_parameters['farms'][farm][filename]['default']) ### Normally all farms have the same default
 
+	# create all the input files
+	for filename in files:
+		for farm in run_parameters['farms']: 
+			if filename in run_parameters['farms'][farm]:
+				nodes=pw.farms[farm]['nodes']
+				files[filename][nodes]=run_parameters['farms'][farm][filename]['value']
 
+		pw.hgrid.write_hgrid(os.path.join(run_parameters['run directory'],filename), files[filename], False)
+		
+		
+		
+		
 
 def Wrapper(run_parameters):
 	# Those are hardwier inside the Docker
