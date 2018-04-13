@@ -8,7 +8,7 @@ import netCDF4
 from schism_setup import load_gr3
 from schismIO import schismIO
 import netCDF4
-
+from collections import Counter
 
 rho=1025 # kg/m3
 def cal_tri_area(a):
@@ -61,13 +61,14 @@ class power:
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
-		
+		bckg_value = Counter(Cd[0,:]).most_common(1)[0][0]
+		import pdb;pdb.set_trace()
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
 			e=self.farms[farm]['elements'] # element inside the farm
 			n=self.farms[farm]['nodes'] # nodes inside the farm
 			tri=self.hgrid.mesh.elems[e,:]
-			Cde=Cd[:,tri]
+			Cde=Cd[:,tri]-bckg_value ## rmove backgroud value
 			Ue=U[:,tri]
 			Ve=V[:,tri]
 
