@@ -86,16 +86,9 @@ class power:
 
 
 
-			# tranform from element to node by divided by 3 maybe this is not really right
-			Pn=np.zeros((nc.variables['dahv'].shape[1],1))
-			Pn_ts=np.zeros((nc.variables['time'].shape[0],nc.variables['dahv'].shape[1]))
-			for i in range(0,len(P)):
-				Pn[tri[i]]=P[i]/3
-				Pn_ts[:,tri[i]]=np.vstack([P_ts[:,i]/3,P_ts[:,i]/3,P_ts[:,i]/3]).T
-
 			self.farms[farm]['mean power']=np.mean(P) # average power over one tidal cycle over the whole farm 
-			self.farms[farm]['power']=Pn[self.farms[farm]['nodes']] # average power over one tidal cycle for each node
-			self.farms[farm]['power ts']=Pn_ts[:,self.farms[farm]['nodes']] # power for each timestep and each node
+			self.farms[farm]['power']=P[self.farms[farm]['elements']] # average power over one tidal cycle for each node
+			self.farms[farm]['power ts']=P_ts[:,self.farms[farm]['elements']] # power for each timestep and each node
 
 	def export_nc(self,file_number,typ='power',outdir=None):
 		if outdir is None:
@@ -106,10 +99,10 @@ class power:
 		os.system('cp '+old_filename+' '+new_filename)
 		nc=netCDF4.Dataset(new_filename,'r+')
 		for farm in self.farms.keys():
-			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_node'))
-			new_var[self.farms[farm]['nodes']]=self.farms[farm][typ]
-			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_node'))
-			new_var[:,self.farms[farm]['nodes']]=self.farms[farm][typ+' ts']
+			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'))
+			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
+			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'))
+			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
 		nc.close()
 
