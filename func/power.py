@@ -62,7 +62,7 @@ class power:
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
 		bckg_value = Counter(Cd[0,:]).most_common(1)[0][0]
-		import pdb;pdb.set_trace()
+
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
 			e=self.farms[farm]['elements'] # element inside the farm
