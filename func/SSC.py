@@ -21,9 +21,9 @@ NPROC=3
 def add_farm_parameter(filename,hgrid,default,value,nodes):
 		attr_array = np.empty(hgrid.mesh.n_nodes())   
 		attr_array.fill(default)    
-		attr_array[nodes]=value
+		attr_array[nodes]=value+default # here we add background friction to farm friction
 		hgrid.write_hgrid(filename, attr_array, False)
-
+		return attr_array
 
 def get_nodes_elements(mesh,vertices):
 	#vertices = map(float, vertices.split())
