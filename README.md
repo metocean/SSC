@@ -11,6 +11,7 @@ $ cd /where/you/save/Dockerfile
 $ sudo docker build -t metocean/ssc_tide .
 ```
 
+
 After this you will have an image called cawthron which contains:
 -the schism model compile ( you can type schism from anywhere inside)
 -the combine_output10 program to compile the output
