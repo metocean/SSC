@@ -58,6 +58,7 @@ class power:
 	def get_power(self,file_number):
 		nc=netCDF4.Dataset(os.path.join(self.sc.dir,'outputs','schout_%i.nc' % file_number))
 		ts=len(nc.variables['time'])
+		dt=nc.variables['time'][2]-nc.variables['time'][1]
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
@@ -72,26 +73,26 @@ class power:
 			Ue=U[:,tri]
 			Ve=V[:,tri]
 
-			# calcution first at each node
+
 			spd=np.sqrt(Ue**2+Ve**2) # Speed at each element
 			P_ts=rho*spd**3 # Power
-
 			# Then calculation for each element
 			Cde = np.average(Cde, axis=2) # bottom drag at each element
 			Cdf=(Cde*A)/np.sum(A) # drag for one element
-			P_ts=np.average(P_ts, axis=2)	#Power for each element
-
+			P_ts=np.average(P_ts, axis=2)              #Power for each element
 			P=P_ts*Cdf
+			# last part needs to be time averaged power for one tidal cycle, with time step dt, ie integral(P_ts dt)/T, this is more accurate than mean(P_ts), due to end values
 
-			P=sum(P_ts)/spd.shape[0]
+			P=np.trapz(P_ts.T, None, dt)/(dt*P_ts.shape[1])
+			
 
 
-
+		
 			self.farms[farm]['mean power']=np.mean(P) # average power over one tidal cycle over the whole farm 
-			self.farms[farm]['power']=P[self.farms[farm]['elements']] # average power over one tidal cycle for each node
-			self.farms[farm]['power ts']=P_ts[:,self.farms[farm]['elements']] # power for each timestep and each node
+			self.farms[farm]['power']=P#[self.farms[farm]['elements']] # average power over one tidal cycle for each node
+			self.farms[farm]['power ts']=P_ts#[:,self.farms[farm]['elements']] # power for each timestep and each node
 
-	def export_nc(self,file_number,typ='power',outdir=None):
+	def export_nc(self,file_number,nTC,typ='power',outdir=None):
 		if outdir is None:
 			outdir=self.sc.dir
 
@@ -99,6 +100,8 @@ class power:
 		new_filename=os.path.join(outdir,'schout_%i.nc' % file_number)
 		os.system('cp '+old_filename+' '+new_filename)
 		nc=netCDF4.Dataset(new_filename,'r+')
+		new_var = nc.createVariable('number_of_TC', 'i4', ('one'))
+		new_var[0]=nTC
 		for farm in self.farms.keys():
 			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'))
 			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]

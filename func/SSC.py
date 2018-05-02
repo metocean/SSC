@@ -18,13 +18,6 @@ import timeit
 
 NPROC=3
 
-def add_farm_parameter(filename,hgrid,default,value,nodes):
-		attr_array = np.empty(hgrid.mesh.n_nodes())   
-		attr_array.fill(default)    
-		attr_array[nodes]=value+default # here we add background friction to farm friction
-		hgrid.write_hgrid(filename, attr_array, False)
-		return attr_array
-
 def get_nodes_elements(mesh,vertices):
 	#vertices = map(float, vertices.split())
 	poly = Polygon(vertices, '', 0,'none')
@@ -79,12 +72,13 @@ def set_params(options,param_file):
 def search_steady_state(dirout,pw,sc,X):
 	P1=0.
 	P2=1000.
-	n=12
+	n0=12
+	n=n0
 	## first filename
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
 	
 	# main loop while steady state not reach
-	while np.abs(P2-P1)/P2 > X:
+	while (P2-P1)/P2 > X:
 		print 'waiting for %s to be created' % tidal_cycle
 		# wait that the next files get created
 		start = timeit.default_timer()
@@ -111,8 +105,8 @@ def search_steady_state(dirout,pw,sc,X):
 
 
 
-	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-1,P1,P2)
-	return pw,n
+	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-1-n0,P1,P2)
+	return pw,n,n-1-n0
 
 	
 def include_farm(run_parameters,pw):
@@ -133,7 +127,7 @@ def include_farm(run_parameters,pw):
 		for farm in run_parameters['farms']: 
 			if filename in run_parameters['farms'][farm]:
 				nodes=pw.farms[farm]['nodes']
-				files[filename][nodes]=run_parameters['farms'][farm][filename]['value']
+				files[filename][nodes]=files[filename][nodes]+run_parameters['farms'][farm][filename]['value'] ##ATTNTION TOTAL is backgroud + NEw value
 
 		pw.hgrid.write_hgrid(os.path.join(run_parameters['run directory'],filename), files[filename], False)
 		
@@ -149,6 +143,8 @@ def Wrapper(run_parameters):
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
 		os.system('mkdir %s' %run_parameters['run directory'])
+	else:
+		os.system('rm %s/schout_*.nc' %run_parameters['run directory'])
 
 
 	## copy the inputs
@@ -180,13 +176,13 @@ def Wrapper(run_parameters):
 
 
 	## Main loop in search of a steady state
-	pw,n=search_steady_state(run_parameters['run directory'],\
+	pw,n,nTC=search_steady_state(run_parameters['run directory'],\
 		pw,\
 		sc,\
 		run_parameters['params']['X'])
 
 	## save to saving directory
-	pw.export_nc(n-1,outdir=run_parameters['saving directory'])
+	pw.export_nc(n-1,nTC,outdir=run_parameters['saving directory'])
 	print 'schism data exported to %s' % run_parameters['saving directory']
 
 	## kill schism

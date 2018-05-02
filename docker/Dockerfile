@@ -161,3 +161,8 @@ RUN mkdir /home/user/run &&\
     mkdir /home/user/run/input/ &&\
     mkdir /home/user/run/output/ 
 
+USER root
+RUN cd /home/user/SSC/ &&\
+    git pull
+
+USER user
