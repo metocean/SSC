@@ -33,6 +33,8 @@ class power:
 	def __init__(self,SC):
 		self.sc=SC
 		self.dir= SC.dir
+		self.bckg_value=0
+		self.value=[]
 		self.hgrid = load_gr3(os.path.join(SC.dir,'hgrid.gr3'))
 		self.Xss=0.02
 		areas=get_areas(self.hgrid.mesh,range(0,self.hgrid.mesh.n_elems()))
@@ -62,37 +64,29 @@ class power:
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
-		bckg_value = Counter(Cd[0,:]).most_common(1)[0][0]
+		bckg_value=self.bckg_value
 
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
 			e=self.farms[farm]['elements'] # element inside the farm
 			n=self.farms[farm]['nodes'] # nodes inside the farm
 			tri=self.hgrid.mesh.elems[e,:]
-			Cde=Cd[:,tri]-bckg_value ## rmove backgroud value
+			Cde=Cd[0,tri]-bckg_value ## rmove backgroud value
 			Ue=U[:,tri]
 			Ve=V[:,tri]
 
-
-			spd=np.sqrt(Ue**2+Ve**2) # Speed at each element
-			P_ts=rho*spd**3 # Power
-			# Then calculation for each element
-			Cde = np.average(Cde, axis=2) # bottom drag at each element
-			Cdf=(Cde*A)/np.sum(A) # drag for one element
-			P_ts=np.average(P_ts, axis=2)              #Power for each element
-			P=P_ts*Cdf
-			# last part needs to be time averaged power for one tidal cycle, with time step dt, ie integral(P_ts dt)/T, this is more accurate than mean(P_ts), due to end values
+			Cde = np.average(Cde, axis=1) # bottom drag at each element shape (86995,)
+			spd=np.average(np.sqrt(Ue**2+Ve**2), axis=2) # Speed time series at each element (92, 86995)
+			P_ts=A[np.newaxis,:] *Cde*spd**3 # Power time series at each element (92, 86995)
 
 			P=np.trapz(P_ts.T, None, dt)/(dt*P_ts.shape[1])
 			
+			self.farms[farm]['mean power']=sum(P) # average power over one tidal cycle over the whole farm 
+			self.farms[farm]['power']=P # average power over one tidal cycle for each element
+			self.farms[farm]['power ts']=P_ts# power for each timestep at each element
 
 
-		
-			self.farms[farm]['mean power']=np.mean(P) # average power over one tidal cycle over the whole farm 
-			self.farms[farm]['power']=P#[self.farms[farm]['elements']] # average power over one tidal cycle for each node
-			self.farms[farm]['power ts']=P_ts#[:,self.farms[farm]['elements']] # power for each timestep and each node
-
-	def export_nc(self,file_number,nTC,typ='power',outdir=None):
+	def export_nc(self,file_number,nTC,typ='power',outdir=None,params=None):
 		if outdir is None:
 			outdir=self.sc.dir
 
@@ -100,13 +94,27 @@ class power:
 		new_filename=os.path.join(outdir,'schout_%i.nc' % file_number)
 		os.system('cp '+old_filename+' '+new_filename)
 		nc=netCDF4.Dataset(new_filename,'r+')
+
+		if params is not None:
+			for att in params.keys():
+				nc.setncattr(att, str(params[att]))
+
+
+
 		new_var = nc.createVariable('number_of_TC', 'i4', ('one'))
 		new_var[0]=nTC
-		for farm in self.farms.keys():
-			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'))
+
+		self.value=[self.bckg_value]+self.value
+		for i,farm in enumerate(self.farms.keys()):
+
+			new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
+			new_var[0]=self.farms[farm]['mean '+typ]
+			new_var.drag=self.value[i]
+			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
 			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
-			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'))
+			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
 			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
+
 
 		nc.close()
 

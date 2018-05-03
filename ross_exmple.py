@@ -6,8 +6,13 @@ import subprocess
 
 root='/home/remy/Buisness/0336_SSC_tides/test/' # My root directory
 
+
+# This is where all functions are located
+root_script=os.path.dirname(os.path.realpath(__file__))
+
 # this is the basic parameter can add more to it
 P=dict()
+P['nproc']=3
 params=dict()
 params['itur']=0
 params['X']=0.01
@@ -15,6 +20,7 @@ params['bfric']= 0
 params['itr_met']= 1
 params['bdrc61']= 1
 P['params']=params
+
 
 
 
@@ -28,7 +34,7 @@ for farmid,farmdrag in enumerate(np.arange(.1,.3,.05)):
 	farmparams['farms'][farmname]=dict()
 	farmparams['farms'][farmname]['vertices']=np.array([[1730477,5400792],[1738253,5411596],[1749124,5407414],[1744441,5392080],[1734909,5391906]]).tolist()
 	farmparams['farms'][farmname]['drag.gr3']=dict()
-	farmparams['farms'][farmname]['drag.gr3']['default']=0.01 # drag coefficient everywhere in the grid
+	farmparams['farms'][farmname]['drag.gr3']['default']=0.0025 # drag coefficient everywhere in the grid
 	farmparams['farms'][farmname]['drag.gr3']['value']=float(farmdrag) # drag coefficient in the farm
 
 	# Take care of the input an  output folder
@@ -51,7 +57,7 @@ for farmid,farmdrag in enumerate(np.arange(.1,.3,.05)):
 		yaml.dump(farmparams, yaml_file, default_flow_style=False)
 
 	# This would run the docker with folder mounted at the right place
-	subprocess.call(["sudo","docker","run", "-v",inputFolder+":/home/user/run/input","-v",outputFolder+":/home/user/run/output/"\
+	subprocess.call(["docker","run","-v",root_script+":/home/user/SSC/","-v",inputFolder+":/home/user/run/input","-v",outputFolder+":/home/user/run/output/"\
 		,"metocean/ssc_tide","python","/home/user/SSC/func/SSC.py","--yaml",os.path.join('/home/user/run/input',farmname+'.yml')])
 
 

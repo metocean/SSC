@@ -125,19 +125,7 @@ RUN cd /home/user/git-lfs-2.3.4 &&\
     sudo ./install.sh &&\
     git lfs install
 
-# download all the code from github
-RUN cd /home/user &&\
-# Changed to https:// as git:// failing
-#    git lfs clone git://github.com/metocean/SSC.git
-git lfs clone https://github.com/metocean/SSC.git
-
-## unzip initial files
-RUN cd /home/user/SSC/initial_files &&\
-    unzip input_files.zip &&\
-    mv input_files/* /home/user/SSC/initial_files &&\
-    rm /home/user/SSC/initial_files/input_files.zip &&\
-    rm -rf /home/user/SSC/initial_files/input_files
-   
+  
 ## ADD libspatial for Rtree package
 RUN cd /home/user/ &&\
     wget 'http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz' &&\
@@ -161,8 +149,4 @@ RUN mkdir /home/user/run &&\
     mkdir /home/user/run/input/ &&\
     mkdir /home/user/run/output/ 
 
-USER root
-RUN cd /home/user/SSC/ &&\
-    git pull
 
-USER user

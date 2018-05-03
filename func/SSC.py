@@ -2,6 +2,7 @@
 import sys,os
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','Bay_delta_scripts'))
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','func')) 
+
 import yaml
 import argparse
 from param import param
@@ -14,9 +15,9 @@ import numpy as np
 from export_nc import export_nc
 from polygons import *
 import timeit
+from zipfile import PyZipFile
 
 
-NPROC=3
 
 def get_nodes_elements(mesh,vertices):
 	#vertices = map(float, vertices.split())
@@ -36,14 +37,14 @@ def get_nodes_elements(mesh,vertices):
 	Elems=list(set(Elems))
 
 	return Nodes,Elems
-def run_schism(mode,schism=None,proc=None,dirout=None):
+def run_schism(mode,nproc=3,schism=None,proc=None,dirout=None):
 #run the model in the background
 	if mode is 'run':
 		try:
 			subprocess.Popen('/opt/mpich/bin/mpd')
 		except:
 			pass
-		proc=subprocess.Popen('mpirun -np %i bash -c "ulimit -s unlimited && %s" &' % (NPROC,schism),\
+		proc=subprocess.Popen('mpirun -np %i bash -c "ulimit -s unlimited && %s" &' % (nproc,schism),\
 						cwd="%s" % dirout,\
 						shell=True,\
 						preexec_fn=os.setsid)
@@ -80,6 +81,7 @@ def search_steady_state(dirout,pw,sc,X):
 	# main loop while steady state not reach
 	while (P2-P1)/P2 > X:
 		print 'waiting for %s to be created' % tidal_cycle
+		sys.stdout.flush()
 		# wait that the next files get created
 		start = timeit.default_timer()
 		while not os.path.exists(tidal_cycle): 
@@ -105,13 +107,14 @@ def search_steady_state(dirout,pw,sc,X):
 
 
 
-	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-1-n0,P1,P2)
-	return pw,n,n-1-n0
+	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-n0,P1,P2)
+	return pw,n,n-n0
 
 	
 def include_farm(run_parameters,pw):
 	## Get all filename to include in the run and initializ:
 	files={}
+	
 	for farm in run_parameters['farms']:
 		nodes,elements=get_nodes_elements(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
 		areas=get_areas(pw.hgrid.mesh,elements)
@@ -121,6 +124,8 @@ def include_farm(run_parameters,pw):
 			if filename not in files:
 				files[filename]= np.empty(pw.hgrid.mesh.n_nodes())
 				files[filename].fill(run_parameters['farms'][farm][filename]['default']) ### Normally all farms have the same default
+				pw.bckg_value=run_parameters['farms'][farm][filename]['default']
+				pw.value.append(run_parameters['farms'][farm][filename]['value'])
 
 	# create all the input files
 	for filename in files:
@@ -143,12 +148,14 @@ def Wrapper(run_parameters):
 	## check path and create it
 	if not os.path.exists(run_parameters['run directory']):
 		os.system('mkdir %s' %run_parameters['run directory'])
-	else:
-		os.system('rm %s/schout_*.nc' %run_parameters['run directory'])
+
 
 
 	## copy the inputs
-	os.system('cp %s %s' %('/home/user/SSC/initial_files/*',run_parameters['run directory']))
+	pzf = PyZipFile('/home/user/SSC/initial_files/input_files.zip')
+	pzf.extractall(run_parameters['run directory'])
+	os.system('mv %s/input_files/* %s' %(run_parameters['run directory'],run_parameters['run directory']))
+	os.system('rm -rf %s/input_files/' % run_parameters['run directory'])
 
 
 	sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
@@ -157,6 +164,8 @@ def Wrapper(run_parameters):
 
 	if not os.path.exists(run_parameters['saving directory']):
 		os.system('mkdir %s' %run_parameters['saving directory'])
+	else:
+		os.system('rm %s/schout_*.nc' %run_parameters['saving directory'])
 
 	## make an outputs directory for schism
 	if not os.path.exists(os.path.join(run_parameters['run directory'],'outputs')):
@@ -171,10 +180,10 @@ def Wrapper(run_parameters):
 	include_farm(run_parameters,pw)
 
 	## run SCHISM
-	proc=run_schism('run',schism='schism',proc=None,dirout=run_parameters['run directory'])
+	proc=run_schism('run',nproc=run_parameters.get('nproc',3),schism='schism',proc=None,dirout=run_parameters['run directory'])
 	print 'schism running in the background'
 
-
+	sys.stdout.flush()
 	## Main loop in search of a steady state
 	pw,n,nTC=search_steady_state(run_parameters['run directory'],\
 		pw,\
@@ -188,7 +197,7 @@ def Wrapper(run_parameters):
 	## kill schism
 	run_schism('kill',proc=proc)
 	print 'schism is killed'
-
+	sys.stdout.flush()
 	# ## delete file from previous run
 	# os.system('rm %s' % (os.path.join(run_parameters['run directory'],'param.in')))
 	# for farm in run_parameters['farms']:
