@@ -15,7 +15,7 @@ import numpy as np
 from export_nc import export_nc
 from polygons import *
 import timeit
-from zipfile import PyZipFile
+
 
 
 
@@ -152,9 +152,7 @@ def Wrapper(run_parameters):
 
 
 	## copy the inputs
-	pzf = PyZipFile('/home/user/SSC/initial_files/input_files.zip')
-	pzf.extractall(run_parameters['run directory'])
-	os.system('mv %s/input_files/* %s' %(run_parameters['run directory'],run_parameters['run directory']))
+	os.system('cp /home/user/SSC/initial_files/* %s' %(run_parameters['run directory']))
 	os.system('rm -rf %s/input_files/' % run_parameters['run directory'])
 
 
