@@ -8,8 +8,9 @@ root='/home/remy/Buisness/0336_SSC_tides/test/' # My root directory
 
 
 # This is where all functions are located
-root_script=os.path.dirname(os.path.realpath(__file__))
-
+#root_script=os.path.dirname(os.path.realpath(__file__))
+root_script=os.path.join(os.path.dirname(os.path.realpath(__file__)),'SSC')
+print root_script+'/func/SSC.py'
 # this is the basic parameter can add more to it
 P=dict()
 P['nproc']=3
@@ -62,4 +63,5 @@ for farmid,farmdrag in enumerate(np.arange(.1,.3,.05)):
 
 
 	# output for you to read should be in outputFolder
+
 
