@@ -64,13 +64,18 @@ class power:
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
-		bckg_value=self.bckg_value
+		
 
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
 			e=self.farms[farm]['elements'] # element inside the farm
 			n=self.farms[farm]['nodes'] # nodes inside the farm
 			tri=self.hgrid.mesh.elems[e,:]
+			if farm == 'whole':
+				bckg_value=0
+			else:
+				bckg_value=self.bckg_value
+
 			Cde=Cd[0,tri]-bckg_value ## rmove backgroud value
 			Ue=U[:,tri]
 			Ve=V[:,tri]
@@ -105,15 +110,17 @@ class power:
 		new_var[0]=nTC
 
 		self.value=[self.bckg_value]+self.value
+		
 		for i,farm in enumerate(self.farms.keys()):
+			if i==0:
+				new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
+				new_var[0]=self.farms[farm]['mean '+typ]
+				new_var.drag=self.value[i]
+				new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
+				new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
+				new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
+				new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
-			new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
-			new_var[0]=self.farms[farm]['mean '+typ]
-			new_var.drag=self.value[i]
-			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
-			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
-			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
-			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
 
 		nc.close()
