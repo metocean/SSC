@@ -79,7 +79,7 @@ def search_steady_state(dirout,pw,sc,X):
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
 	
 	# main loop while steady state not reach
-	while (P2-P1)/P2 > X:
+	while np.abs(P2-P1)/P2 > X:
 		print 'waiting for %s to be created' % tidal_cycle
 		sys.stdout.flush()
 		# wait that the next files get created
