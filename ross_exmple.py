@@ -14,6 +14,7 @@ print root_script+'/func/SSC.py'
 # this is the basic parameter can add more to it
 P=dict()
 P['nproc']=3
+P['maximum cycle']=1
 params=dict()
 params['itur']=0
 params['X']=0.01

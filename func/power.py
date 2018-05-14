@@ -32,6 +32,7 @@ def get_areas(mesh,Elems):
 class power:
 	def __init__(self,SC):
 		self.sc=SC
+		self.max_cycle=20
 		self.dir= SC.dir
 		self.bckg_value=0
 		self.value=[]

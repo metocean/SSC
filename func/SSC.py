@@ -79,7 +79,7 @@ def search_steady_state(dirout,pw,sc,X):
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
 	
 	# main loop while steady state not reach
-	while np.abs(P2-P1)/P2 > X:
+	while np.abs(P2-P1)/P2 > X and n-n0<pw.max_cycle :
 		print 'waiting for %s to be created' % tidal_cycle
 		sys.stdout.flush()
 		# wait that the next files get created
@@ -158,7 +158,7 @@ def Wrapper(run_parameters):
 
 	sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
 	pw=power(sc) # this wil get the power after 1 tidal cycle
-
+	pw.max_cycle=run_parameters.get('maximum cycle',20) # set maximum number of tidal cycle
 
 	if not os.path.exists(run_parameters['saving directory']):
 		os.system('mkdir %s' %run_parameters['saving directory'])
