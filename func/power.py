@@ -84,7 +84,7 @@ class power:
 			Cde = np.average(Cde, axis=1) # bottom drag at each element shape (86995,)
 			spd=np.average(np.sqrt(Ue**2+Ve**2), axis=2) # Speed time series at each element (92, 86995)
 			P_ts=A[np.newaxis,:] *Cde*spd**3 # Power time series at each element (92, 86995)
-
+			P_ts=P_ts*1025 # times by seawaer density
 			P=np.trapz(P_ts.T, None, dt)/(dt*P_ts.shape[1])
 			
 			self.farms[farm]['mean power']=sum(P) # average power over one tidal cycle over the whole farm 
