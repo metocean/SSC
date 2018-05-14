@@ -113,14 +113,13 @@ class power:
 		self.value=[self.bckg_value]+self.value
 		
 		for i,farm in enumerate(self.farms.keys()):
-			if i==0:
-				new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
-				new_var[0]=self.farms[farm]['mean '+typ]
-				new_var.drag=self.value[i]
-				new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
-				new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
-				new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
-				new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
+			new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
+			new_var[0]=self.farms[farm]['mean '+typ]
+			new_var.drag=self.value[i]
+			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
+			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
+			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
+			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
 
 
