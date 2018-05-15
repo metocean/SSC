@@ -117,6 +117,10 @@ def include_farm(run_parameters,pw):
 	
 	for farm in run_parameters['farms']:
 		nodes,elements=get_nodes_elements(pw.hgrid.mesh,run_parameters['farms'][farm]['vertices'])
+		if len(nodes)==0:
+			print "Oops!  That was no valid farm.  Try again..."
+			sys.exit(-1)
+			
 		areas=get_areas(pw.hgrid.mesh,elements)
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes,elements,areas)
 		run_parameters['farms'][farm].pop('vertices')

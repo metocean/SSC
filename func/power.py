@@ -85,12 +85,12 @@ class power:
 			spd=np.average(np.sqrt(Ue**2+Ve**2), axis=2) # Speed time series at each element (92, 86995)
 			P_ts=A[np.newaxis,:] *Cde*spd**3 # Power time series at each element (92, 86995)
 			P_ts=P_ts*1025 # times by seawaer density
-			P=np.trapz(P_ts.T, None, dt)/(dt*P_ts.shape[1])
-			
-			self.farms[farm]['mean power']=sum(P) # average power over one tidal cycle over the whole farm 
-			self.farms[farm]['power']=P # average power over one tidal cycle for each element
-			self.farms[farm]['power ts']=P_ts# power for each timestep at each element
+			mean_P_ts=np.trapz(P_ts, None, dt)/(dt*P_ts.shape[0]) #(92,)
 
+			self.farms[farm]['mean power']=np.average(mean_P_ts) # average power over one tidal cycle over the whole farm (1,)
+			#self.farms[farm]['power']=P # average power over one tidal cycle for each element (1, 86995) NOT really needed right?
+			self.farms[farm]['power ts']=P_ts# power for each timestep at each element (92, 86995)
+			self.farms[farm]['mean power ts']=mean_P_ts# power timesries for the whole farm (92,)
 
 	def export_nc(self,file_number,nTC,typ='power',outdir=None,params=None):
 		if outdir is None:
@@ -116,8 +116,10 @@ class power:
 			new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))
 			new_var[0]=self.farms[farm]['mean '+typ]
 			new_var.drag=self.value[i]
-			new_var = nc.createVariable(farm+'_tidal_cycle_'+typ, 'f8', ('nSCHISM_hgrid_face'),fill_value=0)
-			new_var[self.farms[farm]['elements']]=self.farms[farm][typ]
+
+			new_var = nc.createVariable(farm+'_mean_timeSeries'+typ, 'f8', ('time'),fill_value=0)
+			new_var[:]=self.farms[farm]['mean '+typ+' ts']
+
 			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
 			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
