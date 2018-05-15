@@ -14,6 +14,18 @@ rho=1025 # kg/m3
 def cal_tri_area(a):
     return np.absolute((a[0]*(a[3]-a[5])+a[2]*(a[5]-a[1])+a[4]*(a[1]-a[3]))/2.0)
 
+def tri_area(x,y):
+	# area from x, y which are (n,3)
+	# tested in matlab version compared to polyarea.m same to to 10^-9m for  1500m^2 or larger triangles 
+	# get lengths of 3 sides for herons formula
+	# ross vennel May 2018
+	a=np.sqrt((x[:, 1]-x[:,0])**2+(y[:, 1]-y[:,0])**2)
+	b=np.sqrt((x[:, 2]-x[:,1])**2+(y[:, 2]-y[:,1])**2)
+	c=np.sqrt((x[:, 0]-x[:,2])**2+(y[:, 0]-y[:,2])**2)
+
+	s=(a+b+c)/2.0
+	A=np.sqrt(s*(s-a)*(s-b)*(s-c))
+	return  A
 
 def get_areas(mesh,Elems):
 	ref=np.zeros((mesh.nodes.shape[0],1))
@@ -58,6 +70,7 @@ class power:
 	def check_ss():
 		pass
 
+
 	def get_power(self,file_number):
 		nc=netCDF4.Dataset(os.path.join(self.sc.dir,'outputs','schout_%i.nc' % file_number))
 		ts=len(nc.variables['time'])
@@ -66,7 +79,7 @@ class power:
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
 		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
 		
-
+		
 		for farm in self.farms.keys():
 			A=self.farms[farm]['areas'] # area in m2 for each element of the farm
 			e=self.farms[farm]['elements'] # element inside the farm
@@ -82,15 +95,16 @@ class power:
 			Ve=V[:,tri]
 
 			Cde = np.average(Cde, axis=1) # bottom drag at each element shape (86995,)
-			spd=np.average(np.sqrt(Ue**2+Ve**2), axis=2) # Speed time series at each element (92, 86995)
-			P_ts=A[np.newaxis,:] *Cde*spd**3 # Power time series at each element (92, 86995)
-			P_ts=P_ts*1025 # times by seawaer density
-			mean_P_ts=np.trapz(P_ts, None, dt)/(dt*P_ts.shape[0]) #(92,)
+			Ue=np.average(Ue,axis=2)
+			Ve=np.average(Ve,axis=2)
+			spd=np.sqrt(Ue**2+Ve**2) # Speed time series at each element (92, 86995)
+			
+			P_ts=1025*np.sum(A[np.newaxis,:] *Cde*spd**3,axis=1) # Power time series at each element (92, )
 
-			self.farms[farm]['mean power']=np.average(mean_P_ts) # average power over one tidal cycle over the whole farm (1,)
-			#self.farms[farm]['power']=P # average power over one tidal cycle for each element (1, 86995) NOT really needed right?
-			self.farms[farm]['power ts']=P_ts# power for each timestep at each element (92, 86995)
-			self.farms[farm]['mean power ts']=mean_P_ts# power timesries for the whole farm (92,)
+			mean_P_ts=np.trapz(P_ts,  dx=1.0, axis=0)/(P_ts.shape[0]-1)
+
+			self.farms[farm]['mean power']=mean_P_ts # average power over one tidal cycle over the whole farm (1,)
+			self.farms[farm]['mean power ts']=P_ts# power timesries for the whole farm (92,)
 
 	def export_nc(self,file_number,nTC,typ='power',outdir=None,params=None):
 		if outdir is None:
@@ -119,9 +133,6 @@ class power:
 
 			new_var = nc.createVariable(farm+'_mean_timeSeries'+typ, 'f8', ('time'),fill_value=0)
 			new_var[:]=self.farms[farm]['mean '+typ+' ts']
-
-			new_var = nc.createVariable(farm+'_timeSeries'+typ, 'f8', ('time','nSCHISM_hgrid_face'),fill_value=0)
-			new_var[:,self.farms[farm]['elements']]=self.farms[farm][typ+' ts']
 
 
 
