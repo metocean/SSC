@@ -73,10 +73,10 @@ def set_params(options,param_file):
 def search_steady_state(dirout,pw,sc,X):
 	P1=0.
 	P2=1000.
-	n0=12
+	n0=13
 	n=n0
 	## first filename
-	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_13.nc')
+	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_14.nc')
 	
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X and n-n0<pw.max_cycle :

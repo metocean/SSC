@@ -7,6 +7,11 @@ tmpl='/home/user/SSC/param.tmpl'
 
 def default_value():
 	dflt={}
+	dflt['year']=2017
+	dflt['month']=1
+	dflt['day']=1
+	dflt['hour']=0
+
 	dflt['dt']=60
 	dflt['rnday']=0
 	dflt['dramp']=1
@@ -24,7 +29,7 @@ def default_value():
 
 	dflt['h0']=0.01
 
-	dflt['itr_met']=2
+	dflt['itr_met']=1
 
 	dflt['mdc']=36
 	dflt['msc']=15
@@ -79,6 +84,11 @@ def default_value():
 	dflt['inu_st']=0
 	dflt['icst']=1
 	
+	dflt['ishapiro']=1
+	dflt['ihorcon']=0
+	dflt['indvel']=0
+	dflt['inter_mom']=0
+
 	## Gloabl output
 	dflt['elev61']=1
 	dflt['pres61']=0

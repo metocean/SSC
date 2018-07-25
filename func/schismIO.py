@@ -4,7 +4,7 @@ import os
 import subprocess
 import numpy as np
 
-soft='combine_output10'
+soft='combine_output11'
 
 class schismIO:
 	def __init__(self,dirIN):

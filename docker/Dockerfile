@@ -92,26 +92,26 @@ RUN useradd -ms /bin/bash user
 
 ## Downloading schism
 RUN cd /home/user/ && \
-    svn co http://columbia.vims.edu/schism/tags/v5.5.0
+    svn co http://columbia.vims.edu/schism/tags/v5.6.0
 
 ## edit the makefile
-RUN cd /home/user/v5.5.0/mk &&\
+RUN cd /home/user/v5.6.0/mk &&\
     cp Make.defs.centos.gnu.ompi Make.defs.local &&\
     sed -i "s|ENV = CentOS.gnu.ompi|ENV = HYDRO|g" Make.defs.local && \
     sed -i "s|FCS = gfortran -ffree-line-length-none|FCS = /usr/local/bin/mpif90 -f90=gfortran -ffree-line-length-none|g" Make.defs.local &&\
     sed -i "s|FCP = mpif90 -ffree-line-length-none|FCP = /usr/local/bin/mpif90 -ffree-line-length-none|g" Make.defs.local &&\
-    sed -i "s|#EXEC   := othername.ex|EXEC   := pschism_5.5.0_$(ENV)|g" Make.defs.local
+    sed -i "s|#EXEC   := othername.ex|EXEC   := pschism_5.6.0_$(ENV)|g" Make.defs.local
 
 ## Compile SCHISM
-RUN cd /home/user/v5.5.0/src/ &&\
+RUN cd /home/user/v5.6.0/src/ &&\
     make clean &&\
     make &&\
-    sudo cp /home/user/v5.5.0/src/pschism_5.5.0__VL /usr/local/bin/schism
+    sudo cp /home/user/v5.6.0/src/pschism_5.6.0__VL /usr/local/bin/schism
 
 ## Compile combine code
-RUN cd /home/user/v5.5.0/src/Utility/Combining_Scripts/ &&\
-    gfortran -ffree-line-length-none -cpp -O2 -o combine_output10 ../UtilLib/argparse.F90 combine_output10.f90 ../UtilLib/schism_geometry.f90 -I/usr/local/include -L/usr/local/lib -lnetcdf -lnetcdff &&\
-    sudo cp combine_output10 /usr/local/bin/
+RUN cd /home/user/v5.6.0/src/Utility/Combining_Scripts/ &&\
+    gfortran -ffree-line-length-none -cpp -O2 -o combine_output11 ../UtilLib/argparse.F90 combine_output11.f90 ../UtilLib/schism_geometry.f90 -I/usr/local/include -L/usr/local/lib -lnetcdf -lnetcdff &&\
+    sudo cp combine_output11 /usr/local/bin/
 
 ## Download git lfs 
 RUN cd /home/user/ &&\
@@ -140,8 +140,13 @@ ENV LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
 ## ADD more python tools
 RUN sudo yum -y install python-pip python-devel
 
+## Update pip
+RUN sudo pip install --upgrade pip
+
+RUN pip install --upgrade setuptools --user python
+
 ## ADD python lib
-RUN sudo pip install netCDF4 pyyaml mako numpy==1.8.2 rtree pyproj scipy
+RUN sudo pip install pyyaml netCDF4 mako numpy==1.8.2 rtree pyproj scipy
 
 USER user
 

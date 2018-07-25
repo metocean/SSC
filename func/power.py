@@ -77,7 +77,7 @@ class power:
 		dt=nc.variables['time'][2]-nc.variables['time'][1]
 		U=nc.variables['dahv'][:,:,0] #U veloicity [time,nodes]
 		V=nc.variables['dahv'][:,:,1] #V velocity [time,nodes]
-		Cd=nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
+		Cd=np.zeros((U.shape[0],U.shape[1]))+0.01#nc.variables['bottom_drag_coef'][:,:] # bottom drag [time,node]
 		
 		
 		for farm in self.farms.keys():
@@ -139,21 +139,22 @@ class power:
 		nc.close()
 
 if __name__ == "__main__":
-	sc=schismIO('/home/remy/Buisness/0336_SSC_tides/make_hotstart')
+	sc=schismIO('/home/remy/Buisness/0336_SSC_tides/make_hotstart2')
 	#sc.create_nectdf_file('dahv.62',to_ts=20*3600*24)
-	X=0.02
+	X=0.001
 	pw=power(sc)
 	dt=12.42*3600
 	N=40 # 5 tidal cycle
 	ts=15*60.
 	P1=0.
 	P2=1000.
-	n=0
+	n=1
 	while np.abs(P2-P1)/P2 > X :
 		P1=P2
-		pw.get_power(ts+dt*n,ts+dt*(n+1))
-		P2=pw.farms['whole grid']['power']
+		pw.get_power(n)
+		P2=pw.farms['whole']['mean power']
+		print 'power at %i is %.f' % (n,P2)
 		n+=1
 
 
-	print 'Steady state reach at timestep: %i , P1=%f, P2=%f' % (ts+dt*n,P1,P2)
+	print 'Steady state reach at timestep: %i , P1=%f, P2=%f' % (n,P1,P2)

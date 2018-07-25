@@ -11,6 +11,17 @@
 ! (4) If duplicate entries are present, the first entry gets used.
 !-----------------------------------------------------------------------
 
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! Model configuration parameters
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! Starting time
+  start_year = ${year} !int
+  start_month = ${month} !int
+  start_day = ${day} !int
+  start_hour = ${hour} !double
+  utc_start = 0 !double
+
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Model configuration parameters 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,19 +64,6 @@
   msc2 = ${msc} !same as MSC in .nml ... for consitency check between SCHISM and WWM-II
   mdc2 = ${mdc} !same as MDC in .nml
   hmin_radstress = 1. !min. total water depth used only in radiation stress calculation [m]
-
-!-----------------------------------------------------------------------
-! Hydrological option (0 for normal simulations)
-!-----------------------------------------------------------------------
-  ihydlg = 0
-
-!-----------------------------------------------------------------------
-! Non-hydrostatic model switch (0: hydrostatic model; 1: non-hydrostatic model)
-! For non-hydrostatic model, use ihydro_region to indicate if  hydrostatic 
-! region needs to be specified in hydro_region.gr3 (depth=1 in hydrostatic region)
-!-----------------------------------------------------------------------
-  nonhydro = ${nonhydro} !must be 0 if there are 2D prisms or ics=2 (lat/lon)
-  ihydro_region = 0 !0: no hydro_region.gr3 needed
 
 !-----------------------------------------------------------------------
 ! Define # of tracers in each module (if enabled)
@@ -140,7 +138,7 @@
 ! If indvel=0, conformal linear shape function is used; if indvel=1, averaging method is used.
 ! For indvel=0, some stabilization method is needed (see below). 
 !-----------------------------------------------------------------------
-  indvel = 0 
+  indvel = ${indvel} 
 !-----------------------------------------------------------------------
 ! 2 stabilization methods, mostly for indvel=0.
 ! (1) Horizontal viscosity option. ihorcon=0: no viscosity is used; =1: Lapacian;
@@ -151,7 +149,7 @@
 ! If indvel=1, no hvis is needed. 
 ! (2) Shapiro filter (see below)
 !-----------------------------------------------------------------------
-  ihorcon = 0
+  ihorcon = ${ihorcon}
   hvis_coef0 = 0.02 !const. diffusion # if ihorcon/=0; <=0.025 for ihorcon=2, <=0.125 for ihorcon=1
 !  cdh = 0.01 !needed only if ihorcon/=0; land friction coefficient - not active yet
 
@@ -160,7 +158,7 @@
 ! if indvel=ihorcon=0. To transition between eddying/non-eddying regimes, use
 ! indvel=0, ihorcon/=0, and ishapiro=-1 (shapiro.gr3).
 !-----------------------------------------------------------------------
-  ishapiro = 1 !on/off flag
+  ishapiro = ${ishapiro} !on/off flag
   shapiro = 0.5 !Shapiro filter strength, needed only if ishapiro=1; max is 0.5 
 
 !-----------------------------------------------------------------------
@@ -208,7 +206,7 @@
 ! This flag is mainly used to start the simulation from non-zero elev.
 ! The ramp-up period is same as 'dramp' below.
 !-----------------------------------------------------------------------
-  nramp_elev = 1
+  nramp_elev = 0
 
 !-----------------------------------------------------------------------
 ! Optional inverse barometric effects on the elev. b.c.
@@ -240,6 +238,11 @@
    ic_ICM = 0 !ICM
    ic_COS = 0 !CoSINE
    ic_FIB = 0 !FIB
+
+!-----------------------------------------------------------------------
+! Settling vel [m/s] for GEN module (positive downward)
+!-----------------------------------------------------------------------
+  gen_wsett=1.e-4
 
 !-----------------------------------------------------------------------
 ! Mean T,S profile option. If ibcc_mean=1 (or ihot=0 and ic_TEM=2), mean profile
@@ -317,7 +320,7 @@
 ! if inter_mom=-1, the regions where Kriging is used is specified in krvel.gr3 
 ! (depth=0: no kriging; depth=1: with kriging). 
 !-----------------------------------------------------------------------
-  inter_mom = 1 
+  inter_mom = ${inter_mom} 
   kr_co = 1 !not used if inter_mom=0
 
 !-----------------------------------------------------------------------
@@ -445,212 +448,223 @@
   nspool = ${nspool} !output step spool
   ihfskip = ${ihfskip}!stack spool; every ihfskip steps will be put into 1_*, 2_*, etc...
 
-  elev.61 = ${elev61} !0: off; 1: on - elev. [m]
-  pres.61 = ${pres61} !air pressure [Pa]
-  airt.61 = ${airt61} !air temperature [C]
-  shum.61 = ${shum61} !Specific humidity [-]
-  srad.61 = ${srad61} !solar (shortwave) radiation [W/m/m]
-  flsu.61 = ${flsu61} !sensible flux (positive upward) [W/m/m] 
-  fllu.61 = ${fllu61} !latent heat flux (positive upward) [W/m/m]
+  elev = ${elev61} !0: off; 1: on - elev. [m]
+  pres = ${pres61} !air pressure [Pa]
+  airt = ${airt61} !air temperature [C]
+  shum = ${shum61} !Specific humidity [-]
+  srad = ${srad61} !solar (shortwave) radiation [W/m/m]
+  flsu = ${flsu61} !sensible flux (positive upward) [W/m/m] 
+  fllu = ${fllu61} !latent heat flux (positive upward) [W/m/m]
   
-  radu.61 = ${radu61} !upward longwave radiation (positive upward) [W/m/m]
-  radd.61 = ${radd61} !downward longwave radiation (positive downward) [W/m/m]
-  flux.61 = ${flux61} !total flux=-flsu-fllu-(radu-radd) [W/m/m]
-  evap.61 = ${evap61} !evaporation rate [kg/m/m/s]
-  prcp.61 = ${prcp61} !precipitation rate [kg/m/m/s]
-  bdrc.61 = ${bdrc61} !Bottom drag coefficient [-]
-  wind.62 = ${wind62} !wind speed [m/s]
-  wist.62 = ${wist62} !wind stress [m^2/s/s]
-  dahv.62 = ${dahv62} !depth-averaged vel. [m/s]
-  vert.63 = ${vert63} !vertical velocity [m/s]
-  temp.63 = ${temp63} !water temperature [C]
-  salt.63 = ${salt63} !water salinity [PSU]
-  conc.63 = ${conc63} !water density [kg/m^3]
-  tdff.63 = ${tdff63} !eddy diffusivity [m^2/s]
-  vdff.63 = ${vdff63} !eddy viscosity [m^2/s]
-  kine.63 = ${kine63} !turbulent kinetic energy
-  mixl.63 = ${mixl63} !turbulent mixing length [m]
-  zcor.63 = 1 !z-coordinates [m]
-  qnon.63 = ${qnon63} !non-hydrostatic pressure
-  hvel.64 = ${hvel64} !horizontal vel. [m/s]
-
+  radu = ${radu61} !upward longwave radiation (positive upward) [W/m/m]
+  radd = ${radd61} !downward longwave radiation (positive downward) [W/m/m]
+  flux = ${flux61} !total flux=-flsu-fllu-(radu-radd) [W/m/m]
+  evap = ${evap61} !evaporation rate [kg/m/m/s]
+  prcp = ${prcp61} !precipitation rate [kg/m/m/s]
+  bdrc = ${bdrc61} !Bottom drag coefficient [-]
+  wind = ${wind62} !wind speed [m/s]
+  wist = ${wist62} !wind stress [m^2/s/s]
+  dahv = ${dahv62} !depth-averaged vel. [m/s]
+  vert = ${vert63} !vertical velocity [m/s]
+  temp = ${temp63} !water temperature [C]
+  salt = ${salt63} !water salinity [PSU]
+  conc = ${conc63} !water density [kg/m^3]
+  tdff = ${tdff63} !eddy diffusivity [m^2/s]
+  vdff = ${vdff63} !eddy viscosity [m^2/s]
+  kine = ${kine63} !turbulent kinetic energy
+  mixl = ${mixl63} !turbulent mixing length [m]
+  zcor = 1 !z-coordinates [m]
+  qnon = ${qnon63} !non-hydrostatic pressure
+  hvel = ${hvel64} !horizontal vel. [m/s]
 !-----------------------------------------------------------------------
 ! Outputs from WWM (USE_WWM must be on in Makefile)
 !-----------------------------------------------------------------------
-  wwm_1.61  = 1 !sig. height (m)
-  wwm_2.61  = 0 !Mean average period (sec) - TM01
-  wwm_3.61  = 0 !Zero down crossing period for comparison with buoy (s) - TM02
-  wwm_4.61  = 0 !Average period of wave runup/overtopping - TM10
-  wwm_5.61  = 0 !Mean wave number (1/m)
-  wwm_6.61  = 0 !Mean wave length (m)
-  wwm_7.61  = 0 !Mean average energy transport direction (Average direction; deg)
-  wwm_8.61  = 0 !Mean directional spreading (deg)
-  wwm_9.61  = 1 !Discrete peak period (sec)
-  wwm_10.61 = 0 !Continuous peak period (Tp) based on higher order moments (sec) 
-  wwm_11.61 = 0 !Peak phase vel. (m/s)
-  wwm_12.61 = 0 !Peak n-factor [-]
-  wwm_13.61 = 0 !Peak group vel. (m/s)
-  wwm_14.61 = 0 !Peak wave number (1/m)
-  wwm_15.61 = 0 !Peak wave length (m)
-  wwm_16.61 = 1 !Peak (dominant) wave direction (degr) ... some buoys record this 
-  wwm_17.61 = 0 !Peak directional spreading (deg) ... some buoys record this  
-  wwm_18.61 = 0 !Discrete peak direction (deg) ... some buoys record this  
-  wwm_19.61 = 0 !Orbital vel. (m/s)
-  wwm_20.61 = 0 !RMS orbital vel. (m/s)
-  wwm_21.61 = 0 !Bottom excursion period (sec)
-  wwm_22.61 = 0 !bottom wave period (sec)
-  wwm_23.61 = 0 !Ursell number based on peak period 
-  wwm_24.61 = 0 !none 
-  wwm_25.62 = 0 !Etot energy vector (m^2)
-  wwm_26.62 = 0 !none 
+  WWM_1  = 1 !sig. height (m)
+  WWM_2  = 0 !Mean average period (sec) - TM01
+  WWM_3  = 0 !Zero down crossing period for comparison with buoy (s) - TM02
+  WWM_4  = 0 !Average period of wave runup/overtopping - TM10
+  WWM_5  = 0 !Mean wave number (1/m)
+  WWM_6  = 0 !Mean wave length (m)
+  WWM_9  = 0 !Mean average energy transport direction (degr)
+  WWM_10 = 0 !Mean directional spreading (degr)
+  WWM_11 = 1 !Discrete peak period (sec) - Tp
+  WWM_12 = 0 !Continuous peak period based on higher order moments (sec)
+  WWM_13 = 0 !Peak phase vel. (m/s)
+  WWM_14 = 0 !Peak n-factor
+  WWM_15 = 0 !Peak group vel. (m/s)
+  WWM_16 = 0 !Peak wave number
+  WWM_17 = 0 !Peak wave length
+  WWM_18 = 1 !Peak (dominant) direction (degr)
+  WWM_19 = 0 !Peak directional spreading
+  WWM_20 = 0 !Discrete peak direction
+  WWM_21 = 0 !Orbital vel. (m/s)
+  WWM_22 = 0 !RMS Orbital vel. (m/s)
+  WWM_23 = 0 !Bottom excursion period (sec?)
+  WWM_24 = 0 !Bottom wave period (sec)
+  WWM_25 = 0 !Uresell number based on peak period
+  WWM_26 = 0 !Friction velocity (m/s?)
+  WWM_27  = 0 !Charnock coefficient
+  WWM_28  = 0 !Rougness length
+  WWM_energy_dir = 1 !vector
 
 !-----------------------------------------------------------------------
 ! Outputs for user-defined tracer module
 !-----------------------------------------------------------------------
-  GEN_1.63 = ${GEN_1} 
-  GEN_2.63 = ${GEN_2}
-  GEN_3.63 = ${GEN_3}
-  GEN_4.63 = ${GEN_4}
-  GEN_5.63 = ${GEN_5}
-  GEN_6.63 = ${GEN_6}
-  GEN_7.63 = ${GEN_7}
-  GEN_8.63 = ${GEN_8}
-  GEN_9.63 = ${GEN_9}
-  GEN_10.63 = ${GEN_10}
+  GEN_1 = ${GEN_1} 
+  GEN_2 = ${GEN_2}
+  GEN_3 = ${GEN_3}
+  GEN_4 = ${GEN_4}
+  GEN_5 = ${GEN_5}
+  GEN_6 = ${GEN_6}
+  GEN_7 = ${GEN_7}
+  GEN_8 = ${GEN_8}
+  GEN_9 = ${GEN_9}
+  GEN_10 = ${GEN_10}
 !-----------------------------------------------------------------------
 ! Outputs for (age)
 !-----------------------------------------------------------------------
-  AGE_1.63 = ${AGE_1}
-  AGE_2.63 = ${AGE_2} !indices from "1" to "ntr/2"; [days]
-  AGE_3.63 = ${AGE_3}
-  AGE_4.63 = ${AGE_4} !indices from "1" to "ntr/2"; [days]
-  AGE_5.63 = ${AGE_5}
-  AGE_6.63 = ${AGE_6} !indices from "1" to "ntr/2"; [days]
-  AGE_7.63 = ${AGE_7}
-  AGE_8.63 = ${AGE_8} !indices from "1" to "ntr/2"; [days]
-  AGE_9.63 = ${AGE_9}
-  AGE_10.63 =${AGE_10} !indices from "1" to "ntr/2"; [days]
+  AGE_1 = ${AGE_1}
+  AGE_2 = ${AGE_2} !indices from "1" to "ntr/2"; [days]
+  AGE_3 = ${AGE_3}
+  AGE_4 = ${AGE_4} !indices from "1" to "ntr/2"; [days]
+  AGE_5 = ${AGE_5}
+  AGE_6 = ${AGE_6} !indices from "1" to "ntr/2"; [days]
+  AGE_7 = ${AGE_7}
+  AGE_8 = ${AGE_8} !indices from "1" to "ntr/2"; [days]
+  AGE_9 = ${AGE_9}
+  AGE_10 =${AGE_10} !indices from "1" to "ntr/2"; [days]
 
 
 !-----------------------------------------------------------------------
 ! Specific outputs in SED3D (USE_SED must be on in Makefile;
 ! otherwise these are not needed)
 !-----------------------------------------------------------------------
-  SED_1.63 = 1 !conc. of 1st class (one output need by each class) [g/L]
-  SED_2.63 = 1 
-  SED_3.63 = 1
-  SED_4.63 = 0
-  SED_5.63 = 0  
-  SED_bfrac_1.61 = 1 ! Bed fraction 1st tracer (one output need by each class) [-]
-  SED_bfrac_2.61 = 1
-  SED_bfrac_3.61 = 1
-  SED_bfrac_4.61 = 0
-  SED_bfrac_5.61 = 0
-  SED_qbdl_1.62 = 1 ! Bedload transport rate (kg.m-1.s-1) for 1st tracer (one output need by tracer)
-  SED_qbdl_2.62 = 1
-  SED_qbdl_3.62 = 1
-  SED_qbdl_4.62 = 0
-  SED_qbdl_5.62 = 0
+  SED_1 = 1 !conc. of 1st class (one output need by each class) [g/L]
+  SED_2 = 1 
+  SED_3 = 1
+  SED_4 = 0
+  SED_5 = 0  
+  SED_bfrac_1 = 1 ! Bed fraction 1st tracer (one output need by each class) [-]
+  SED_bfrac_2 = 1
+  SED_bfrac_3 = 1
+  SED_bfrac_4 = 0
+  SED_bfrac_5 = 0
+  SED_qbdl_1 = 1 ! Bedload transport rate (kg.m-1.s-1) for 1st tracer (one output need by tracer)
+  SED_qbdl_2 = 1
+  SED_qbdl_3 = 1
+  SED_qbdl_4 = 0
+  SED_qbdl_5 = 0
 
-  SED_depth.61 = 0 !bottom depth _change_ from init. condition (m)
-  SED_bedd50.61  = 0 ! Bed median grain size in the active layer (mm)
-  SED_bstress.61 = 0 ! Bottom shear stress (Pa)
-  SED_brough.61  = 1 ! Bottom roughness lenghth (mm)
+  SED_depth = 0 !bottom depth _change_ from init. condition (m)
+  SED_bedd50  = 0 ! Bed median grain size in the active layer (mm)
+  SED_bstress = 0 ! Bottom shear stress (Pa)
+  SED_brough  = 1 ! Bottom roughness lenghth (mm)
 
 !-----------------------------------------------------------------------
 ! EcoSim outputs 
 !-----------------------------------------------------------------------
-  ECO_1.63 = 0
-  ECO_2.63 = 0
+  ECO_1 = 0
+  ECO_2 = 0
 
 !-----------------------------------------------------------------------
 ! ICM outputs 
 !-----------------------------------------------------------------------
-  ICM_1.63 = 0 !salinity [PSU]
-  ICM_2.63 = 0 !temperature [C]
-  ICM_3.63 = 0!Zoo. #1
-  ICM_4.63 = 0 !Zoo. #2
-  ICM_5.63 = 0 !phyto #1
-  ICM_6.63 = 0 !phyto #2
-  ICM_7.63 = 0 !phyto #3
-  ICM_8.63 = 0 !RPOC
-  ICM_9.63 = 0 !LPOC
-  ICM_10.63 = 0 !DOC
-  ICM_11.63 = 0 !RPON
-  ICM_12.63 = 0 !LPON
-  ICM_13.63 = 0 !DON
-  ICM_14.63 = 0 !NH4
-  ICM_15.63 = 0 !NO3
-  ICM_16.63 = 0 !RPOP
-  ICM_17.63 = 0 !LPOP
-  ICM_18.63 = 0 !DOP
-  ICM_19.63 = 0 !PO4t
-  ICM_20.63 = 0 !Si- biogenic
-  ICM_21.63 = 0 !available Si
-  ICM_22.63 = 0 !COD: Chemical oxygen demand
-  ICM_23.63 = 0 !DO
+  ICM_1 = 0 !salinity [PSU]
+  ICM_2 = 0 !temperature [C]
+  ICM_3 = 0!Zoo. #1
+  ICM_4 = 0 !Zoo. #2
+  ICM_5 = 0 !phyto #1
+  ICM_6 = 0 !phyto #2
+  ICM_7 = 0 !phyto #3
+  ICM_8 = 0 !RPOC
+  ICM_9 = 0 !LPOC
+  ICM_10 = 0 !DOC
+  ICM_11 = 0 !RPON
+  ICM_12 = 0 !LPON
+  ICM_13 = 0 !DON
+  ICM_14 = 0 !NH4
+  ICM_15 = 0 !NO3
+  ICM_16 = 0 !RPOP
+  ICM_17 = 0 !LPOP
+  ICM_18 = 0 !DOP
+  ICM_19 = 0 !PO4t
+  ICM_20 = 0 !Si- biogenic
+  ICM_21 = 0 !available Si
+  ICM_22 = 0 !COD: Chemical oxygen demand
+  ICM_23 = 0 !DO
 
 !-----------------------------------------------------------------------
 ! CoSINE outputs
 !-----------------------------------------------------------------------
-  COS_1.63 = 1 !
-  COS_2.63 = 1 !
-  COS_3.63 = 1 !
-  COS_4.63 = 1 !
-  COS_5.63 = 1 !
-  COS_6.63 = 1 !
-  COS_7.63 = 1 !
-  COS_8.63 = 1 !
-  COS_9.63 = 1 !
-  COS_10.63 = 1
-  COS_11.63 = 1
-  COS_12.63 = 1
-  COS_13.63 = 1 !
-
+  COS_1 = 1 !
+  COS_2 = 1 !
+  COS_3 = 1 !
+  COS_4 = 1 !
+  COS_5 = 1 !
+  COS_6 = 1 !
+  COS_7 = 1 !
+  COS_8 = 1 !
+  COS_9 = 1 !
+  COS_10 = 1
+  COS_11 = 1
+  COS_12 = 1
+  COS_13 = 1 !
 !-----------------------------------------------------------------------
 ! Fecal indicating bacteria module
 !-----------------------------------------------------------------------
-  FIB_1.63 = 1
+  FIB_1 = 1
 
 !-----------------------------------------------------------------------
 ! Specific outputs in SED2D (USE_SED2D must be on in Makefile;
 ! otherwise these are not needed)
 !-----------------------------------------------------------------------
-  depth.61 = 1 !bottom depth _change_ from init. condition (m)
-  cdsed.61  = 1 !drag coefficient used in transport formulae
-  cflsed.61 = 1 !Courant number (b.qtot.dt / h.dx)
-  d50moy.61 = 1 !Surface layer mean d50 (m) for multi-class multi-layer mode
-  qtot.62   = 1 !total transport rate (kg/m/s)
-  qsus.62   = 1 !suspended tranport rate (kg/m/s)
-  qbdl.62   = 1 !bedload transport rate (kg/m/s)
-  qav.62    = 1 !time averaged total transport rate (kg/m/s)
-  dpdxy.62  = 1 !bottom slope (m/m) negative uphill
- 
+!-----------------------------------------------------------------------
+  SED2D_depth  = 0 !bottom depth _change_ from init. condition (m)
+  SED2D_cdsed  = 0 !drag coefficient used in transport formulae
+  SED2D_cflsed = 0 !Courant number (b.qtot.dt / h.dx)
+  SED2D_d50    = 0 !Top layer d50 (m)
+  SED2D_qtot   = 0 !total transport rate vector (kg/m/s)
+  SED2D_qsus   = 0 !suspended tranport rate vector (kg/m/s)
+  SED2D_qbdl   = 0 !bedload transport rate vector (kg/m/s)
+  SED2D_qav    = 0 !time averaged total transport rate vector (kg/m/s)
+  SED2D_dpdxy  = 0 !bottom slope vector (m/m); negative uphill
+
 !-----------------------------------------------------------------------
 ! Non-standard outputs section. Some of these need corresponding cpp flags
 ! to be on in order to be active.
 !-----------------------------------------------------------------------
-  hvel.67 = ${hvel67} !horizontal vel. defined at side [m/s]
-  vert.69 = 0 !vertical vel. at centroids [m/s]
-  temp.70 = 0 !T at prism centers [C]
-  salt.70 = 0 !S at prism centers [PSU]
-  bthk.66 = 0 ! total bed thickness (m) {module: SED}
-  bage.66 = 0 ! total bed age over all layers (sec) {module: SED}
-  z0st.66 = 0 ! Sediment transport roughness length (m) {module: SED}
-  z0eq.66 = 0 !Total roughness length (m) {module: SED2D}
-  z0cr.66 = 0 !current-ripples roughness length (m) {module: SED or SED2D}
-  z0sw.66 = 0 !sand-waves roughness length (m) {module: SED or SED2D}
-  z0wr.66 = 0 !wave-ripples roughness length (m) {module: SED or SED2D}
-  bpgr.65 = 0 ! Barotropic pressure gradient force (m.s-2) at side centers (only if im2d = 1) {DEBUG}
-  wafo.67 = 0 ! Wave force (m.s-2) computed by wwm at side centers and whole levels {module: WWM &DEBUG}
-  bdoc.66 = 0 !ICM bed sediment flux arrays: BENDOC
-  bnh4.66 = 0 !ICM bed sediment flux arrays: SED_BENNH4
-  bno3.66 = 0 !ICM bed sediment flux arrays: SED_BENNO3
-  bpo4.66 = 0 !ICM bed sediment flux arrays: BENPO4
-  bcod.66 = 0 !ICM bed sediment flux arrays: SED_BENCOD
-  sbdo.66 = 0 !ICM bed sediment flux arrays: sed_BENDO 
-  sbsa.66 = 0 !ICM bed sediment flux arrays: BENSA
-  mrsh.66 = 0 !marsh flags (USE_MARSH on)
+  hvel_side = ${hvel67} !horizontal vel. defined at side [m/s]
+  vert_elem = 0 !vertical vel. at centroids [m/s]
+  temp_elem = 0 !T at prism centers [C]
+  salt_elem = 0 !S at prism centers [PSU]
+  bthk_elem = 0 ! total bed thickness (m) {module: SED}
+  bage_elem = 0 ! total bed age over all layers (sec) {module: SED}
+  z0st_elem = 0 ! Sediment transport roughness length (m) {module: SED}
+  SED2D_z0eq_elem = 0 !Total roughness length (m) {module: SED2D}
+  SED2D_z0cr_elem = 0 !current-ripples roughness length (m) {module: SED or SED2D}
+  SED2D_z0sw_elem = 0 !sand-waves roughness length (m) {module: SED or SED2D}
+  SED2D_z0wr_elem = 0 !wave-ripples roughness length (m) {module: SED or SED2D}
+  bpgr_side = 0 ! Barotropic pressure gradient force vector (m.s-2) at side centers (only if im2d = 1) {DEBUG}
+  wave_force_side = 0 ! Wave force vector (m.s-2) computed by wwm at side centers and whole levels {module: WWM &DEBUG}
+  ICM_SED_BENDOC_elem = 0 !ICM bed sediment flux arrays: BENDOC
+  ICM_SED_BENNH4_elem = 0 !ICM bed sediment flux arrays: SED_BENNH4
+  ICM_SED_BENNO3_elem = 0 !ICM bed sediment flux arrays: SED_BENNO3
+  ICM_SED_BENPO4_elem = 0 !ICM bed sediment flux arrays: BENPO4
+  ICM_SED_BENCOD_elem = 0 !ICM bed sediment flux arrays: SED_BENCOD
+  ICM_SED_BENDO_elem = 0 !ICM bed sediment flux arrays: sed_BENDO
+  ICM_SED_BENSA_elem = 0 !ICM bed sediment flux arrays: BENSA
+  ICM_lfsav = 0 !ICM SAV leaf biomass [gC/m^3] (k=1 is surface)
+  ICM_stsav = 0 !ICM SAV stem biomass [gC/m^3]
+  ICM_rtsav = 0 !ICM SAV root biomass [gC/m^3]
+  ICM_tlfsav = 0 !ICM SAV total leaf biomass [gC/m^2]
+  ICM_tstsav = 0 !ICM SAV total stem biomass [gC/m^2]
+  ICM_trtsav = 0 !ICM SAV total root biomass [gC/m^2]
+  ICM_hcansav = 0 !ICM SAV canopy height [m]
+
+  mrsh_elem = 0 !marsh flags (USE_MARSH on)
+
+
+
 
 !-----------------------------------------------------------------------
 ! Station output option. If iout_sta/=0, need output skip (nspool_sta) and
@@ -677,15 +691,6 @@
 ! in regions specified in fluxflag.prop (regional number from -1 to an arbitrary integer).
 !-----------------------------------------------------------------------
   consv_check = 0
-
-! Time
-  sim_year = 2000
-  sim_month = 2
-  sim_day = 1
-  sim_hour = 0
-  sim_minute = 0
-  sim_second = 0
-
 !-----------------------------------------------------------------------
 ! Test flags for debugging. These flags should be turned off normally.
 !-----------------------------------------------------------------------
