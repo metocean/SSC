@@ -27,3 +27,4 @@ include_farm(run_parameters,pw)
 
 pw.get_power(13)
 pw.export_nc(13,5,outdir='/home/remy/Buisness/0336_SSC_tides/test_run/output/',params=run_parameters['params'])
+

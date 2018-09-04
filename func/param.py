@@ -29,7 +29,7 @@ def default_value():
 
 	dflt['h0']=0.01
 
-	dflt['itr_met']=1
+	dflt['itr_met']=3
 
 	dflt['mdc']=36
 	dflt['msc']=15
@@ -79,7 +79,7 @@ def default_value():
 	dflt['bfric']=-1
 	dflt['ihconsv']=0
 	dflt['isconsv']=0
-	dflt['itur']=0
+	
 	dflt['ibcc_mean']=0
 	dflt['inu_st']=0
 	dflt['icst']=1
