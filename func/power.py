@@ -115,7 +115,7 @@ class power:
 		grid_filename=os.path.join(outdir,'grid.nc')
 		os.system('cp '+old_filename+' '+new_filename)
 		# crate th grid file
-		os.system('ncks -v SCHISM_hgrid,SCHISM_hgrid_face_nodes,'\
+		os.system('ncks -O -v SCHISM_hgrid,SCHISM_hgrid_face_nodes,'\
 			'SCHISM_hgrid_edge_nodes,SCHISM_hgrid_node_x,SCHISM_hgrid_node_y,'\
 			'SCHISM_hgrid_face_x,SCHISM_hgrid_face_y,SCHISM_hgrid_edge_x,SCHISM_hgrid_edge_y,depth'\
 			' %s %s' % (new_filename,grid_filename))
