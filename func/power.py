@@ -134,6 +134,7 @@ class power:
 		new_var[0]=nTC
 
 		self.value=[self.bckg_value]+self.value
+
 		
 		for i,farm in enumerate(self.farms.keys()):
 			new_var = nc.createVariable(farm+'_mean_'+typ, 'f8', ('one'))

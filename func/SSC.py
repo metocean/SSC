@@ -123,13 +123,16 @@ def include_farm(run_parameters,pw):
 			
 		areas=get_areas(pw.hgrid.mesh,elements)
 		pw.add_farm(farm,run_parameters['farms'][farm]['vertices'],nodes,elements,areas)
+
 		run_parameters['farms'][farm].pop('vertices')
+
 		for filename in run_parameters['farms'][farm]:
-			if filename not in files:
-				files[filename]= np.empty(pw.hgrid.mesh.n_nodes())
-				files[filename].fill(run_parameters['farms'][farm][filename]['default']) ### Normally all farms have the same default
-				pw.bckg_value=run_parameters['farms'][farm][filename]['default']
-				pw.value.append(run_parameters['farms'][farm][filename]['value'])
+		 	if filename not in files:
+		 		files[filename]= np.empty(pw.hgrid.mesh.n_nodes())
+		 		files[filename].fill(run_parameters['farms'][farm][filename]['default']) ### Normally all farms have the same default
+		 	pw.bckg_value=run_parameters['farms'][farm][filename]['default']
+		 	pw.value.append(run_parameters['farms'][farm][filename]['value'])
+
 
 	# create all the input files
 	for filename in files:
