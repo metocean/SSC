@@ -124,6 +124,11 @@ RUN cd /home/user/v5.6.1/src/Utility/Combining_Scripts/ &&\
     gfortran -ffree-line-length-none -cpp -O2 -o combine_output11 ../UtilLib/argparse.F90 combine_output11.f90 ../UtilLib/schism_geometry.f90 -I/usr/local/include -L/usr/local/lib -lnetcdf -lnetcdff &&\
     sudo cp combine_output11 /usr/local/bin/
 
+## Compile hotstart code
+RUN cd /home/user/v5.6.1/src/Utility/Combining_Scripts/ &&\
+    gfortran -ffree-line-length-none -cpp -O2 -o combine_hotstart7 ../UtilLib/argparse.F90 combine_hotstart7.f90 -I/usr/local/include -L/usr/local/lib -lnetcdf -lnetcdff &&\
+    sudo cp combine_hotstart7 /usr/local/bin/
+
 ## Download git lfs 
 RUN cd /home/user/ &&\
     wget 'https://github.com/git-lfs/git-lfs/releases/download/v2.3.4/git-lfs-linux-amd64-2.3.4.tar.gz' &&\

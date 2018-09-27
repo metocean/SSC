@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 
-import os,sys
+import os,sys,glob
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','Bay_delta_scripts')) 
 import subprocess
 import numpy as np
@@ -114,6 +114,12 @@ class power:
 		new_filename=os.path.join(outdir,'schout_%i.nc' % file_number)
 		grid_filename=os.path.join(outdir,'grid.nc')
 		os.system('cp '+old_filename+' '+new_filename)
+
+		#copy the hotstart file if any
+		hot_files=glob.glob(os.path.join(self.sc.dir,'outputs','hotstart_it=*.nc'))
+		if len(hot_files)>0:
+			os.system('cp '+hot_files[0]+' '+os.path.join(outdir,'hotstart.nc'))
+
 		# crate th grid file
 		os.system('ncks -O -v SCHISM_hgrid,SCHISM_hgrid_face_nodes,'\
 			'SCHISM_hgrid_edge_nodes,SCHISM_hgrid_node_x,SCHISM_hgrid_node_y,'\

@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-import sys,os
+import sys,os,glob
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','Bay_delta_scripts'))
 sys.path.append(os.path.join(os.path.dirname(__file__),'..','func')) 
 
@@ -61,7 +61,6 @@ def set_params(options,param_file):
 	options['params']['rnday']=59
 	options['params']['output dt']= 486 
 	options['params']['file length']= 44712 #12.42 hours in seconds
-	options['params']['output hotstart']= 0
 	options['params']['hotstart dt']= 44712 # in seconds 
 
 
@@ -73,10 +72,12 @@ def set_params(options,param_file):
 def search_steady_state(dirout,pw,sc,X):
 	P1=0.
 	P2=1000.
-	n0=13
+
+	n0=sc.get_startfile()+1
+	
 	n=n0
 	## first filename
-	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_14.nc')
+	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_'+str(n0)+'.nc')
 	
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X and n-n0<pw.max_cycle :
@@ -94,6 +95,13 @@ def search_steady_state(dirout,pw,sc,X):
 		print 'one tidal cycle finished in %dhrs %02dmin %02dsec' % (h,m,s)
 		# compile it
 		sc.create_nectdf_file(n)
+
+		# compile if there is any hotstart found
+		hot_files=glob.glob(os.path.join(dirout,'outputs','hotstart_0000_*.nc'))
+		if len(hot_files)>0:
+			last_iteration=sorted([int(x.replace(os.path.dirname(x),'').replace('/hotstart_0000_','').replace('.nc','')) for x in hot_files])[-1]
+			sc.create_hotstart_file(last_iteration)
+
 		# get the power for all the farms in the file
 		P1=P2
 		pw.get_power(n)
@@ -159,9 +167,18 @@ def Wrapper(run_parameters):
 
 
 	## copy the inputs
-	os.system('cp /home/user/SSC/initial_files/* %s' %(run_parameters['run directory']))
+	os.system('cp /home/user/SSC/initial_files/*.in '\
+		'/home/user/SSC/initial_files/*.th.nc '\
+		'/home/user/SSC/initial_files/*.gr3 '\
+		'/home/user/SSC/initial_files/*.ll '\
+		'/home/user/SSC/initial_files/*.prop '\
+		'  %s' %(run_parameters['run directory']))
 	os.system('rm -rf %s/input_files/' % run_parameters['run directory'])
 
+	## Copy but don't replace the hotstart file
+	os.system('cp -n /home/user/SSC/initial_files/hotstart.nc %s' %(run_parameters['run directory']))
+
+		
 
 	sc=schismIO(run_parameters['run directory']) # this will combine he file as it run
 	pw=power(sc) # this wil get the power after 1 tidal cycle
