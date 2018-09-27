@@ -40,7 +40,11 @@ class schismIO:
 		f=os.path.join(self.dir,'hotstart.nc') 
 		nc=netCDF4.Dataset(f)
 		ifile=nc.variables['ifile'][0]
-		return ifile
+		if 'P2' in nc.variables:
+			P2=nc.variables['P2'][0]
+		else:
+			P2=1000.
+		return ifile,P2
 
 
 

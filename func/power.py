@@ -115,10 +115,16 @@ class power:
 		grid_filename=os.path.join(outdir,'grid.nc')
 		os.system('cp '+old_filename+' '+new_filename)
 
-		#copy the hotstart file if any
+		#copy the hotstart file if any and add the laster Powr calculation for steady state
 		hot_files=glob.glob(os.path.join(self.sc.dir,'outputs','hotstart_it=*.nc'))
 		if len(hot_files)>0:
 			os.system('cp '+hot_files[0]+' '+os.path.join(outdir,'hotstart.nc'))
+			nc=netCDF4.Dataset(os.path.join(outdir,'hotstart.nc'),'r+')
+			new_var = nc.createVariable('P2', 'f8', ('one'))
+			new_var[0]=self.farms['whole']['mean power']
+			nc.close()
+
+
 
 		# crate th grid file
 		os.system('ncks -O -v SCHISM_hgrid,SCHISM_hgrid_face_nodes,'\

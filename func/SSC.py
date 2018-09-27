@@ -70,14 +70,14 @@ def set_params(options,param_file):
 
 
 def search_steady_state(dirout,pw,sc,X):
-	P1=0.
-	P2=1000.
 
-	n0=sc.get_startfile()+1
+	P1=0.
+
+	n0,P2=sc.get_startfile()
 	
 	n=n0
 	## first filename
-	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_'+str(n0)+'.nc')
+	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_'+str(n0+1)+'.nc')
 	
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X and n-n0<pw.max_cycle :
@@ -96,14 +96,9 @@ def search_steady_state(dirout,pw,sc,X):
 		# compile it
 		sc.create_nectdf_file(n)
 
-		# compile if there is any hotstart found
-		hot_files=glob.glob(os.path.join(dirout,'outputs','hotstart_0000_*.nc'))
-		if len(hot_files)>0:
-			last_iteration=sorted([int(x.replace(os.path.dirname(x),'').replace('/hotstart_0000_','').replace('.nc','')) for x in hot_files])[-1]
-			sc.create_hotstart_file(last_iteration)
-
 		# get the power for all the farms in the file
 		P1=P2
+
 		pw.get_power(n)
 
 		# check power from the whole grid
@@ -116,6 +111,12 @@ def search_steady_state(dirout,pw,sc,X):
 
 
 	print 'Steady state reach at tidal cycle number : %i , P1=%f, P2=%f' % (n-n0,P1,P2)
+	# compile if there is any hotstart found
+	hot_files=glob.glob(os.path.join(dirout,'outputs','hotstart_0000_*.nc'))
+	if len(hot_files)>0:
+		last_iteration=sorted([int(x.replace(os.path.dirname(x),'').replace('/hotstart_0000_','').replace('.nc','')) for x in hot_files])[-1]
+		sc.create_hotstart_file(last_iteration)
+
 	return pw,n,n-n0
 
 	
