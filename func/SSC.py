@@ -15,6 +15,7 @@ import numpy as np
 from export_nc import export_nc
 from polygons import *
 import timeit
+import copy
 
 
 
@@ -75,10 +76,11 @@ def search_steady_state(dirout,pw,sc,X):
 
 	n0,P2=sc.get_startfile()
 	
-	n=n0
+	n=copy.deepcopy(n0)
 	## first filename
 	tidal_cycle=os.path.join(dirout,'outputs','schout_0000_'+str(n0+1)+'.nc')
-	
+
+
 	# main loop while steady state not reach
 	while np.abs(P2-P1)/P2 > X and n-n0<pw.max_cycle :
 		print 'waiting for %s to be created' % tidal_cycle
