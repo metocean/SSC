@@ -22,11 +22,11 @@ Create a container
 
 Once you have set up the image you need to run it ( that will create a container)
 ```
-$ docker run --name SSC -it metocean/ssc_tide
+$ docker run --name SSC -it metocean/ssc
 ```
 or with mounting a existing folder
 ```
-$ docker run --name SSC -it -v/home/ross/mycode:/home/user/ metocean/ssc_tide
+$ docker run --name SSC -it -v /home/ross/mycode:/home/user/ metocean/ssc
 ```
 
 Run the Wrapper
