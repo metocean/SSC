@@ -8,10 +8,10 @@ Build the image from the dockerfile:
 
 ```
 $ cd /where/you/save/Dockerfile
-$ sudo docker build -t metocean/ssc_tide .
+$ sudo docker build -t metocean/ssc .
 ```
 
-After this you will have an image called cawthron which contains:
+After this you will have an image called `ssc` which contains:
 - the schism model compile ( you can type schism from anywhere inside)
 - the combine_output10 program to compile the output
 - the git hub folder with all the code
