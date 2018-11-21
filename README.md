@@ -12,9 +12,9 @@ $ sudo docker build -t metocean/ssc_tide .
 ```
 
 After this you will have an image called cawthron which contains:
--the schism model compile ( you can type schism from anywhere inside)
--the combine_output10 program to compile the output
--the git hub folder with all the code
+- the schism model compile ( you can type schism from anywhere inside)
+- the combine_output10 program to compile the output
+- the git hub folder with all the code
 everything will be in /home/user/SSC
 
 Create a container
@@ -22,11 +22,11 @@ Create a container
 
 Once you have set up the image you need to run it ( that will create a container)
 ```
-$ sudo run --name SSC -it metocean/ssc_tide
+$ docker run --name SSC -it metocean/ssc_tide
 ```
 or with mounting a existing folder
 ```
-$ sudo run --name SSC -it -v/home/ross/mycode:/home/user/ metocean/ssc_tide
+$ docker run --name SSC -it -v/home/ross/mycode:/home/user/ metocean/ssc_tide
 ```
 
 Run the Wrapper
